@@ -1,0 +1,1615 @@
+/* ==============================================================================
+   bbm.css - BlackBerry Messenger (BBM) UI Theme for SiPENDEKAR Calo
+   High-Fidelity BlackBerry Aesthetic, Dark Glassmorphic Modern Polish,
+   Responsive Smartphone Chassis & Fullscreen Widescreen Layout
+   ============================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap');
+
+:root {
+  /* BBM Core Brand Colors */
+  --bbm-blue: #0077c8;
+  --bbm-blue-glow: #00a8ff;
+  --bbm-blue-dark: #004d80;
+  --bbm-blue-gradient: linear-gradient(135deg, #005088 0%, #0077c8 50%, #00a8ff 100%);
+  --bbm-accent-cyan: #06b6d4;
+  --bbm-ping-red: #ff3366;
+  --bbm-ping-glow: rgba(255, 51, 102, 0.6);
+  --bbm-delivered: #0077c8;
+  --bbm-read: #8b5cf6;
+  --bbm-led-green: #00ff66;
+
+  /* Surfaces & Backgrounds */
+  --bg-deep: #070c14;
+  --bg-chassis: #101622;
+  --bg-chassis-edge: #1a2336;
+  --bg-screen: #0a0f1d;
+  --bg-surface: rgba(18, 26, 43, 0.85);
+  --bg-surface-elevated: rgba(26, 38, 62, 0.9);
+  --bg-card: rgba(18, 27, 45, 0.75);
+  --bg-card-hover: rgba(28, 42, 68, 0.85);
+
+  /* Borders & Highlights */
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --border-active: rgba(0, 168, 255, 0.35);
+  --border-card: rgba(255, 255, 255, 0.1);
+
+  /* Typography */
+  --text-main: #f1f5f9;
+  --text-muted: #8e9bb0;
+  --text-dim: #5c687e;
+  --text-pin: #38bdf8;
+
+  /* Status Colors */
+  --status-success: #10b981;
+  --status-success-bg: rgba(16, 185, 129, 0.15);
+  --status-warning: #f59e0b;
+  --status-warning-bg: rgba(245, 158, 11, 0.15);
+  --status-danger: #ef4444;
+  --status-danger-bg: rgba(239, 68, 68, 0.15);
+
+  /* UI Curves & Shadows */
+  --radius-chassis: 36px;
+  --radius-screen: 22px;
+  --radius-card: 14px;
+  --radius-btn: 10px;
+  --radius-pill: 9999px;
+
+  --shadow-chassis: 0 30px 80px rgba(0, 0, 0, 0.8), 0 10px 30px rgba(0, 0, 0, 0.5), inset 0 1px 2px rgba(255, 255, 255, 0.25);
+  --shadow-card: 0 8px 24px rgba(0, 0, 0, 0.3);
+  --shadow-glow: 0 0 20px rgba(0, 168, 255, 0.35);
+  --shadow-ping: 0 0 25px rgba(255, 51, 102, 0.6);
+}
+
+/* Base Reset */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  background-color: var(--bg-deep);
+  background-image: 
+    radial-gradient(circle at 20% 20%, rgba(0, 119, 200, 0.08) 0%, transparent 40%),
+    radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.06) 0%, transparent 40%),
+    linear-gradient(180deg, #070c14 0%, #0c121e 100%);
+  color: var(--text-main);
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+}
+
+/* Master Layout Container */
+.app-viewport {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 16px 12px 30px;
+  transition: all 0.3s ease;
+}
+
+/* Top Utility Header (Device Switcher & Brand) */
+.utility-bar {
+  width: 100%;
+  max-width: 1200px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 16px 16px;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.brand-badge {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.bb-emblem {
+  width: 32px;
+  height: 32px;
+  background: var(--bbm-blue-gradient);
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0, 119, 200, 0.4);
+}
+
+.bb-emblem svg {
+  width: 18px;
+  height: 18px;
+  fill: #fff;
+}
+
+.brand-title-wrap h1 {
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: -0.3px;
+  background: linear-gradient(90deg, #ffffff, #a5d8ff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.brand-title-wrap p {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.utility-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.mode-toggle-btn, .audio-toggle-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-muted);
+  padding: 7px 14px;
+  border-radius: var(--radius-btn);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+
+.mode-toggle-btn:hover, .audio-toggle-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-main);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.mode-toggle-btn.active {
+  background: rgba(0, 119, 200, 0.2);
+  color: var(--bbm-blue-glow);
+  border-color: var(--border-active);
+}
+
+/* ==============================================================================
+   BLACKBERRY SMARTPHONE FRAME / WIDESCREEN CONTAINER
+   ============================================================================== */
+
+.device-wrapper {
+  width: 100%;
+  max-width: 520px;
+  transition: max-width 0.4s cubic-bezier(0.16, 1, 0.3, 1), transform 0.2s ease;
+  position: relative;
+}
+
+/* Widescreen Toggle Mode */
+.device-wrapper.widescreen-mode {
+  max-width: 1200px;
+}
+
+.device-wrapper.widescreen-mode .bb-chassis {
+  padding: 12px;
+  border-radius: 20px;
+}
+
+.device-wrapper.widescreen-mode .bb-top-hardware {
+  display: none;
+}
+
+/* Phone Chassis */
+.bb-chassis {
+  background: linear-gradient(160deg, #182235 0%, #0d1421 100%);
+  border: 2px solid var(--bg-chassis-edge);
+  border-radius: var(--radius-chassis);
+  box-shadow: var(--shadow-chassis);
+  padding: 18px 14px 22px;
+  position: relative;
+  backdrop-filter: blur(10px);
+}
+
+/* BlackBerry Hardware Bezel Elements */
+.bb-top-hardware {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 2px 18px 14px;
+}
+
+.bb-speaker-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+}
+
+.bb-logo-script {
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #718096;
+  font-weight: 800;
+  text-shadow: 0 1px 1px rgba(0,0,0,0.8);
+}
+
+.bb-speaker-grill {
+  width: 64px;
+  height: 5px;
+  background: #090e18;
+  border-radius: 4px;
+  box-shadow: inset 0 1px 2px #000, 0 1px 1px rgba(255,255,255,0.1);
+}
+
+.bb-camera-lens {
+  width: 10px;
+  height: 10px;
+  background: radial-gradient(circle at 35% 35%, #1e293b, #000);
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Iconic Blinking LED Light */
+.bb-led-indicator {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #1e293b;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.bb-led-indicator.connected {
+  background: var(--bbm-led-green);
+  box-shadow: 0 0 10px var(--bbm-led-green), 0 0 20px rgba(0, 255, 102, 0.5);
+  animation: ledPulse 2.4s infinite ease-in-out;
+}
+
+.bb-led-indicator.alerting {
+  background: var(--bbm-ping-red);
+  box-shadow: 0 0 12px var(--bbm-ping-red), 0 0 24px rgba(255, 51, 102, 0.8);
+  animation: ledFlashFast 0.4s infinite;
+}
+
+@keyframes ledPulse {
+  0%, 100% { opacity: 0.85; transform: scale(1); }
+  50% { opacity: 0.3; transform: scale(0.9); }
+}
+
+@keyframes ledFlashFast {
+  0%, 100% { opacity: 1; transform: scale(1.15); }
+  50% { opacity: 0.2; transform: scale(0.9); }
+}
+
+/* ==============================================================================
+   SCREEN DISPLAY
+   ============================================================================== */
+
+.bb-screen {
+  background: var(--bg-screen);
+  border-radius: var(--radius-screen);
+  border: 1px solid var(--border-card);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  min-height: 720px;
+  box-shadow: inset 0 2px 10px rgba(0,0,0,0.6);
+  position: relative;
+}
+
+/* BlackBerry Status Bar */
+.bb-system-bar {
+  background: #060a13;
+  padding: 6px 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  user-select: none;
+}
+
+.carrier-info {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.signal-bars {
+  display: flex;
+  gap: 2px;
+  align-items: flex-end;
+  height: 10px;
+}
+
+.signal-bar {
+  width: 2.5px;
+  background: #334155;
+  border-radius: 1px;
+}
+
+.signal-bar.bar-1 { height: 3px; background: var(--bbm-blue-glow); }
+.signal-bar.bar-2 { height: 5px; background: var(--bbm-blue-glow); }
+.signal-bar.bar-3 { height: 8px; background: var(--bbm-blue-glow); }
+.signal-bar.bar-4 { height: 10px; background: var(--bbm-blue-glow); }
+
+.battery-badge {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #10b981;
+}
+
+/* ==============================================================================
+   BBM ACTION HEADER & PROFILE SECTION
+   ============================================================================== */
+
+.bbm-header {
+  background: var(--bbm-blue-gradient);
+  padding: 12px 16px;
+  box-shadow: 0 4px 16px rgba(0, 80, 136, 0.4);
+  position: relative;
+}
+
+.bbm-top-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.bbm-brand-area {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.bbm-title {
+  font-size: 16px;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -0.2px;
+}
+
+.bbm-tag {
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+  font-size: 9px;
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Iconic PING Button */
+.bbm-ping-btn {
+  background: linear-gradient(135deg, #ff3366, #e11d48);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 20px;
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 4px 14px rgba(255, 51, 102, 0.5);
+  transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.bbm-ping-btn:hover {
+  transform: scale(1.06);
+  box-shadow: var(--shadow-ping);
+}
+
+.bbm-ping-btn:active {
+  transform: scale(0.95);
+}
+
+/* User Profile Row */
+.bbm-profile-card {
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  backdrop-filter: blur(8px);
+}
+
+.profile-avatar-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.profile-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: var(--bbm-blue);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 18px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.status-dot {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid #005088;
+  background: var(--bbm-led-green);
+}
+
+.profile-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.profile-name-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.profile-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pin-pill {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  background: rgba(0, 0, 0, 0.4);
+  color: var(--text-pin);
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.pin-pill:hover {
+  background: rgba(56, 189, 248, 0.2);
+}
+
+.profile-status-text {
+  font-size: 11px;
+  color: #dbeafe;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+  margin-top: 2px;
+}
+
+.switch-acc-btn {
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #fff;
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+
+.switch-acc-btn:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+/* ==============================================================================
+   NAVIGATION TABS (CHATS, KONTAK, KEGIATAN, PROGRES, FEEDS)
+   ============================================================================== */
+
+.bbm-nav-bar {
+  background: #0e1626;
+  border-bottom: 1px solid var(--border-subtle);
+  display: flex;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.bbm-nav-bar::-webkit-scrollbar {
+  display: none;
+}
+
+.bbm-nav-tab {
+  flex: 1;
+  min-width: 70px;
+  padding: 10px 8px;
+  background: transparent;
+  border: none;
+  border-bottom: 3px solid transparent;
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  text-align: center;
+}
+
+.bbm-nav-tab svg {
+  width: 18px;
+  height: 18px;
+  stroke: currentColor;
+  stroke-width: 2;
+  fill: none;
+  transition: transform 0.2s;
+}
+
+.bbm-nav-tab:hover {
+  color: var(--text-main);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.bbm-nav-tab.active {
+  color: var(--bbm-blue-glow);
+  border-bottom-color: var(--bbm-blue-glow);
+  background: rgba(0, 119, 200, 0.08);
+}
+
+.bbm-nav-tab.active svg {
+  transform: translateY(-1px);
+}
+
+.nav-badge {
+  position: absolute;
+  top: 4px;
+  right: calc(50% - 20px);
+  background: var(--bbm-ping-red);
+  color: #fff;
+  font-size: 9px;
+  font-weight: 800;
+  padding: 1px 5px;
+  border-radius: 10px;
+}
+
+/* ==============================================================================
+   TAB PANELS (CONTENT VIEWPORT)
+   ============================================================================== */
+
+.bbm-content-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+}
+
+.tab-pane {
+  display: none;
+  flex: 1;
+  flex-direction: column;
+  overflow-y: auto;
+  padding: 16px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.1) transparent;
+}
+
+.tab-pane.active {
+  display: flex;
+  animation: fadeIn 0.25s ease forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ==============================================================================
+   TAB 1: 💬 BBM CHATS / OBROLAN & CALO ASSISTANT
+   ============================================================================== */
+
+.chat-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.chat-message-list {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-bottom: 12px;
+}
+
+.chat-row {
+  display: flex;
+  gap: 8px;
+  align-items: flex-end;
+  max-width: 88%;
+}
+
+.chat-row.user {
+  align-self: flex-end;
+  flex-direction: row-reverse;
+}
+
+.chat-row.calo {
+  align-self: flex-start;
+}
+
+.chat-bubble {
+  padding: 10px 14px;
+  border-radius: 14px;
+  font-size: 13px;
+  line-height: 1.45;
+  position: relative;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  word-break: break-word;
+}
+
+.chat-row.calo .chat-bubble {
+  background: #142036;
+  border: 1px solid var(--border-subtle);
+  color: var(--text-main);
+  border-bottom-left-radius: 3px;
+}
+
+.chat-row.user .chat-bubble {
+  background: var(--bbm-blue-gradient);
+  color: #fff;
+  border-bottom-right-radius: 3px;
+}
+
+.chat-meta {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+.chat-row.user .chat-meta {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* Authentic BBM D and R Status Badges */
+.bbm-status-tick {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  font-size: 9px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.bbm-status-tick.delivered {
+  background: var(--bbm-delivered);
+  color: #fff;
+}
+
+.bbm-status-tick.read {
+  background: var(--bbm-read);
+  color: #fff;
+}
+
+/* Chat Action Chips */
+.chat-action-chips {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  padding: 8px 0;
+}
+
+.action-chip {
+  background: rgba(0, 119, 200, 0.15);
+  border: 1px solid var(--border-active);
+  color: var(--bbm-blue-glow);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 5px 10px;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.action-chip:hover {
+  background: rgba(0, 119, 200, 0.35);
+  transform: translateY(-1px);
+}
+
+.action-chip.urgent {
+  background: var(--status-danger-bg);
+  border-color: rgba(239, 68, 68, 0.4);
+  color: #f87171;
+}
+
+/* Chat Input Bar */
+.chat-input-bar {
+  background: #0e1627;
+  border-top: 1px solid var(--border-subtle);
+  padding: 10px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.chat-text-input {
+  flex: 1;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--border-subtle);
+  border-radius: 20px;
+  color: #fff;
+  font-size: 13px;
+  padding: 9px 16px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.chat-text-input:focus {
+  border-color: var(--bbm-blue-glow);
+}
+
+.chat-send-btn {
+  background: var(--bbm-blue-gradient);
+  border: none;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: transform 0.2s;
+}
+
+.chat-send-btn:hover {
+  transform: scale(1.08);
+}
+
+/* ==============================================================================
+   TAB 2: 👥 KONTAK (MULTI-AKUN ASN)
+   ============================================================================== */
+
+.contacts-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.section-title {
+  font-size: 15px;
+  font-weight: 800;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-add-contact {
+  background: var(--bbm-blue-gradient);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-btn);
+  padding: 8px 14px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 4px 12px rgba(0, 119, 200, 0.35);
+  transition: all 0.2s;
+}
+
+.btn-add-contact:hover {
+  transform: translateY(-1px);
+}
+
+.contact-card-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.contact-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-card);
+  border-radius: var(--radius-card);
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  transition: all 0.2s ease;
+}
+
+.contact-card:hover {
+  background: var(--bg-card-hover);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.contact-card.active-account {
+  border-color: var(--bbm-blue-glow);
+  background: rgba(0, 119, 200, 0.12);
+  box-shadow: 0 0 16px rgba(0, 119, 200, 0.2);
+}
+
+.contact-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  flex: 1;
+}
+
+.contact-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 16px;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.contact-details {
+  min-width: 0;
+  flex: 1;
+}
+
+.contact-name-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.contact-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.contact-nip {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.contact-status-desc {
+  font-size: 11px;
+  color: var(--bbm-accent-cyan);
+  margin-top: 2px;
+}
+
+.contact-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.btn-switch-act {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-main);
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-switch-act:hover {
+  background: var(--bbm-blue);
+  color: #fff;
+  border-color: var(--bbm-blue);
+}
+
+.btn-active-badge {
+  background: var(--bbm-blue-gradient);
+  color: #fff;
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 11px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.btn-del-contact {
+  background: transparent;
+  border: none;
+  color: var(--text-dim);
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 6px;
+  transition: color 0.2s;
+}
+
+.btn-del-contact:hover {
+  color: var(--status-danger);
+}
+
+/* ==============================================================================
+   TAB 3: 📋 PILIH KEGIATAN & SKP DINAMIS
+   ============================================================================== */
+
+.catalog-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.activity-form-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-card);
+  border-radius: var(--radius-card);
+  padding: 16px;
+  box-shadow: var(--shadow-card);
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-group.full-width {
+  grid-column: 1 / -1;
+}
+
+.form-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.form-control {
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  color: #fff;
+  padding: 9px 12px;
+  font-size: 13px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.form-control:focus {
+  border-color: var(--bbm-blue-glow);
+}
+
+.selected-activity-banner {
+  background: rgba(0, 119, 200, 0.1);
+  border: 1px solid var(--border-active);
+  border-radius: 10px;
+  padding: 12px;
+  margin-bottom: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.sel-act-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.sel-act-badges {
+  display: flex;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.badge-pill {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-muted);
+}
+
+.badge-pill.blue { background: rgba(0, 119, 200, 0.3); color: #7dd3fc; }
+.badge-pill.green { background: rgba(16, 185, 129, 0.3); color: #6ee7b7; }
+
+.btn-submit-activity {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-btn);
+  padding: 12px 20px;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4);
+  transition: all 0.2s;
+  width: 100%;
+  margin-top: 14px;
+}
+
+.btn-submit-activity:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(16, 185, 129, 0.5);
+}
+
+/* Catalog Browser Search & Cards */
+.catalog-search-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.catalog-search-input {
+  flex: 1;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--border-subtle);
+  border-radius: 10px;
+  color: #fff;
+  padding: 10px 14px;
+  font-size: 13px;
+  outline: none;
+}
+
+.catalog-search-input:focus {
+  border-color: var(--bbm-blue-glow);
+}
+
+.category-chips {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+  scrollbar-width: none;
+  margin-bottom: 12px;
+}
+
+.category-chip {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 5px 12px;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+
+.category-chip.active {
+  background: var(--bbm-blue-gradient);
+  color: #fff;
+  border-color: transparent;
+}
+
+.catalog-item-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 10px;
+  max-height: 400px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.catalog-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-card);
+  border-radius: 10px;
+  padding: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.catalog-card:hover {
+  background: var(--bg-card-hover);
+  border-color: var(--bbm-blue-glow);
+  transform: translateY(-2px);
+}
+
+.catalog-card-code {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--bbm-blue-glow);
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.catalog-card-name {
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.4;
+  margin-bottom: 8px;
+}
+
+.catalog-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+/* ==============================================================================
+   TAB 4: 📊 PROGRES PENGISIAN & KALENDER
+   ============================================================================== */
+
+.progress-header-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.stat-box {
+  background: var(--bg-card);
+  border: 1px solid var(--border-card);
+  border-radius: var(--radius-card);
+  padding: 14px;
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.stat-val {
+  font-size: 22px;
+  font-weight: 800;
+  color: #fff;
+}
+
+.stat-sub {
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-top: 2px;
+}
+
+/* Circular Progress Dial */
+.circle-progress-wrap {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.svg-circle-ring {
+  width: 58px;
+  height: 58px;
+  transform: rotate(-90deg);
+}
+
+.circle-bg {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.08);
+  stroke-width: 6;
+}
+
+.circle-bar {
+  fill: none;
+  stroke: var(--bbm-blue-glow);
+  stroke-width: 6;
+  stroke-linecap: round;
+  stroke-dasharray: 157;
+  stroke-dashoffset: 40;
+  transition: stroke-dashoffset 0.6s ease;
+}
+
+/* H-7 Urgency Alert Banner */
+.urgency-alert-card {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(220, 38, 38, 0.05) 100%);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  border-radius: var(--radius-card);
+  padding: 14px 16px;
+  margin-bottom: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.urgency-text-area h4 {
+  font-size: 14px;
+  font-weight: 800;
+  color: #f87171;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.urgency-text-area p {
+  font-size: 12px;
+  color: #cbd5e1;
+  margin-top: 2px;
+}
+
+.btn-autofill-h7 {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-btn);
+  padding: 9px 16px;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: transform 0.2s;
+}
+
+.btn-autofill-h7:hover {
+  transform: translateY(-1px);
+}
+
+/* Calendar Matrix */
+.calendar-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-card);
+  border-radius: var(--radius-card);
+  padding: 16px;
+}
+
+.calendar-top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.cal-month-title {
+  font-size: 15px;
+  font-weight: 800;
+  color: #fff;
+}
+
+.calendar-grid-view {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+}
+
+.cal-day-header {
+  font-size: 10px;
+  font-weight: 800;
+  color: var(--text-dim);
+  text-align: center;
+  padding: 4px 0;
+  text-transform: uppercase;
+}
+
+.cal-day-cell {
+  aspect-ratio: 1;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  padding: 6px 4px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  min-height: 52px;
+}
+
+.cal-day-cell:hover {
+  transform: translateY(-1px);
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+.cal-day-cell.terisi {
+  background: var(--status-success-bg);
+  border-color: rgba(16, 185, 129, 0.4);
+}
+
+.cal-day-cell.kosong-bisa {
+  background: var(--status-danger-bg);
+  border-color: rgba(239, 68, 68, 0.45);
+  animation: pulseEmpty 2s infinite ease-in-out;
+}
+
+@keyframes pulseEmpty {
+  0%, 100% { box-shadow: 0 0 0 rgba(239, 68, 68, 0); }
+  50% { box-shadow: 0 0 8px rgba(239, 68, 68, 0.4); }
+}
+
+.cal-day-cell.kosong-lewat {
+  opacity: 0.35;
+}
+
+.cal-day-cell.weekend {
+  opacity: 0.25;
+  background: transparent;
+  cursor: default;
+}
+
+.cal-day-cell.future {
+  opacity: 0.15;
+  cursor: default;
+}
+
+.cal-num {
+  font-size: 11px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.cal-tag-badge {
+  font-size: 8px;
+  font-weight: 800;
+  padding: 1px 4px;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
+.cal-tag-badge.badge-success { background: var(--status-success); color: #fff; }
+.cal-tag-badge.badge-danger { background: var(--status-danger); color: #fff; }
+
+/* ==============================================================================
+   TAB 5: 📢 FEEDS (STATUS UPDATES & ACTIVITY LOGS)
+   ============================================================================== */
+
+.feed-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.feed-item {
+  background: var(--bg-card);
+  border: 1px solid var(--border-card);
+  border-radius: var(--radius-card);
+  padding: 12px 14px;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.feed-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 9px;
+  background: var(--bbm-blue);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.feed-content {
+  flex: 1;
+}
+
+.feed-header-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.feed-author {
+  font-size: 13px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.feed-time {
+  font-size: 10px;
+  color: var(--text-dim);
+}
+
+.feed-text {
+  font-size: 12px;
+  color: #cbd5e1;
+  line-height: 1.4;
+}
+
+/* ==============================================================================
+   MODALS & TOAST NOTIFICATIONS
+   ============================================================================== */
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(8px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 16px;
+}
+
+.modal-backdrop.active {
+  display: flex;
+  animation: fadeIn 0.2s ease forwards;
+}
+
+.modal-sheet {
+  background: #141c2d;
+  border: 1px solid var(--border-card);
+  border-radius: 18px;
+  width: 100%;
+  max-width: 480px;
+  max-height: 85vh;
+  overflow-y: auto;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6);
+  padding: 20px;
+}
+
+.modal-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.modal-head h3 {
+  font-size: 16px;
+  font-weight: 800;
+  color: #fff;
+}
+
+.modal-close-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 20px;
+  cursor: pointer;
+  padding: 4px;
+}
+
+/* BBM Toast Notification */
+.bbm-toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(30px);
+  background: #0f172a;
+  border: 1px solid var(--border-active);
+  color: #fff;
+  padding: 12px 20px;
+  border-radius: var(--radius-pill);
+  font-size: 13px;
+  font-weight: 700;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+  display: none;
+  align-items: center;
+  gap: 10px;
+  z-index: 2000;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.bbm-toast.show {
+  display: flex;
+  transform: translateX(-50%) translateY(0);
+}
+
+.bbm-toast.ping-alert {
+  background: linear-gradient(135deg, #ff3366, #e11d48);
+  border-color: #ff3366;
+  box-shadow: var(--shadow-ping);
+}
+
+/* Screen Shake Animation on PING!!! */
+@keyframes bbmShake {
+  0% { transform: translate(0, 0) rotate(0deg); }
+  10% { transform: translate(-6px, -4px) rotate(-1deg); }
+  20% { transform: translate(6px, 4px) rotate(1deg); }
+  30% { transform: translate(-5px, 3px) rotate(0deg); }
+  40% { transform: translate(5px, -3px) rotate(1deg); }
+  50% { transform: translate(-3px, 2px) rotate(-1deg); }
+  60% { transform: translate(3px, -2px) rotate(0deg); }
+  70% { transform: translate(-2px, 1px) rotate(0deg); }
+  100% { transform: translate(0, 0) rotate(0deg); }
+}
+
+.bbm-shake {
+  animation: bbmShake 0.65s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+/* ==============================================================================
+   RESPONSIVE QUERIES
+   ============================================================================== */
+
+@media (max-width: 600px) {
+  .app-viewport {
+    padding: 0;
+  }
+
+  .bb-chassis {
+    border-radius: 0;
+    border: none;
+    padding: 0;
+    box-shadow: none;
+  }
+
+  .bb-screen {
+    border-radius: 0;
+    border: none;
+    min-height: 100vh;
+  }
+
+  .bb-top-hardware {
+    display: none;
+  }
+
+  .utility-bar {
+    display: none;
+  }
+}

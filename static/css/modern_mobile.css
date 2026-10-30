@@ -1,0 +1,701 @@
+/* ==============================================================================
+   modern_mobile.css - Clean, Claymorphic 3D & Mobile-First UI (Inspired by Reference)
+   Soft Lilac/Purple Tone, Rounded Cards, Floating Bottom Nav, Floating Center Action
+   ============================================================================== */
+
+:root {
+  --font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  
+  /* Primary 3D Palette (Lilac / Purple / Gradient Soft) */
+  --bg-app: #f2effb;
+  --bg-gradient: linear-gradient(180deg, #ede7fd 0%, #f6f3ff 40%, #f4f0fd 100%);
+  --surface: #ffffff;
+  --surface-soft: #f8f6fe;
+  --surface-tinted: #ede7fc;
+  
+  --primary: #7c4dff;
+  --primary-hover: #6c3bee;
+  --primary-gradient: linear-gradient(135deg, #8a58ff 0%, #6830f5 100%);
+  --secondary-gradient: linear-gradient(135deg, #38ef7d 0%, #11998e 100%);
+  --accent-cyan: linear-gradient(135deg, #42e695 0%, #3bb2b8 100%);
+  --accent-orange: linear-gradient(135deg, #ff9f43 0%, #ff5252 100%);
+  --accent-purple-soft: #ebdfff;
+  
+  --text-main: #2b2353;
+  --text-secondary: #70659a;
+  --text-muted: #9f96c3;
+  
+  --border-light: rgba(142, 116, 230, 0.12);
+  --border-card: rgba(255, 255, 255, 0.8);
+  
+  /* 3D Soft Claymorphic Shadows */
+  --shadow-clay: 0 14px 28px rgba(116, 82, 222, 0.12), 0 6px 12px rgba(116, 82, 222, 0.08);
+  --shadow-clay-subtle: 0 8px 18px rgba(116, 82, 222, 0.08);
+  --shadow-clay-pressed: inset 0 3px 6px rgba(116, 82, 222, 0.15);
+  --shadow-card-elevated: 0 16px 36px rgba(108, 66, 219, 0.14);
+  --shadow-fab: 0 12px 26px rgba(124, 77, 255, 0.45);
+  
+  --radius-xl: 32px;
+  --radius-lg: 24px;
+  --radius-md: 18px;
+  --radius-sm: 12px;
+}
+
+/* Reset & Global */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  font-family: var(--font-family);
+  background: var(--bg-app);
+  color: var(--text-main);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  overflow-x: hidden;
+  background-attachment: fixed;
+}
+
+/* App Viewport Container */
+.mobile-app-shell {
+  width: 100%;
+  max-width: 480px;
+  min-height: 100vh;
+  background: var(--bg-gradient);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  box-shadow: 0 0 50px rgba(116, 82, 222, 0.15);
+  padding-bottom: 95px; /* Room for floating bottom nav */
+}
+
+@media (min-width: 768px) {
+  body {
+    background: #e5e0f7;
+    padding: 24px 0;
+  }
+  .mobile-app-shell {
+    border-radius: 40px;
+    height: calc(100vh - 48px);
+    overflow: hidden;
+    position: relative;
+  }
+}
+
+/* ==============================================================================
+   TOP HEADER (Mobile App Header with Greeting & Avatar)
+   ============================================================================== */
+.app-top-header {
+  padding: 18px 20px 14px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: transparent;
+  z-index: 20;
+}
+
+.header-user-pill {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.header-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 20px;
+  background: var(--primary-gradient);
+  color: #fff;
+  font-weight: 700;
+  font-size: 17px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6px 14px rgba(124, 77, 255, 0.3);
+  border: 2px solid #ffffff;
+}
+
+.header-greeting-title {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--text-main);
+  line-height: 1.2;
+}
+
+.header-greeting-sub {
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.header-icon-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 16px;
+  background: #ffffff;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-main);
+  box-shadow: var(--shadow-clay-subtle);
+  cursor: pointer;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.header-icon-btn:active {
+  transform: scale(0.92);
+}
+
+/* ==============================================================================
+   TAB PANES (Single active view)
+   ============================================================================== */
+.app-body-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 18px 20px 18px;
+  scroll-behavior: smooth;
+}
+
+.app-tab-pane {
+  display: none;
+  animation: fadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.app-tab-pane.active {
+  display: block;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ==============================================================================
+   CLAYMORPHIC HERO BANNER (3D Visual Featured Card)
+   ============================================================================== */
+.clay-hero-card {
+  background: linear-gradient(135deg, #7c4dff 0%, #5323d8 100%);
+  border-radius: var(--radius-xl);
+  padding: 22px 20px;
+  color: #ffffff;
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--shadow-card-elevated);
+  margin-bottom: 20px;
+}
+
+.clay-hero-card::after {
+  content: '';
+  position: absolute;
+  top: -30%;
+  right: -20%;
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0) 70%);
+  pointer-events: none;
+}
+
+.hero-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.22);
+  backdrop-filter: blur(8px);
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  margin-bottom: 12px;
+}
+
+.hero-title {
+  font-size: 21px;
+  font-weight: 800;
+  line-height: 1.25;
+  margin-bottom: 8px;
+}
+
+.hero-sub {
+  font-size: 13px;
+  opacity: 0.88;
+  line-height: 1.45;
+  margin-bottom: 16px;
+  max-width: 280px;
+}
+
+.hero-stats-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.hero-mini-stat {
+  background: rgba(255, 255, 255, 0.16);
+  backdrop-filter: blur(10px);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+.hero-stat-label {
+  font-size: 11px;
+  opacity: 0.85;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.hero-stat-value {
+  font-size: 18px;
+  font-weight: 800;
+  margin-top: 2px;
+}
+
+/* ==============================================================================
+   QUICK ACTION 3D PILL BUTTONS (Grid inspired by Reference image)
+   ============================================================================== */
+.section-heading-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 18px 0 12px 0;
+}
+
+.section-heading-title {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--text-main);
+}
+
+.section-heading-link {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--primary);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.action-3d-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.action-3d-card {
+  background: #ffffff;
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  cursor: pointer;
+  box-shadow: var(--shadow-clay);
+  border: 2px solid transparent;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.action-3d-card:active {
+  transform: scale(0.96);
+  box-shadow: var(--shadow-clay-subtle);
+}
+
+.action-3d-icon-box {
+  width: 48px;
+  height: 48px;
+  border-radius: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
+}
+
+.action-3d-icon-box.purple { background: linear-gradient(135deg, #a78bfa, #7c3aed); color: #fff; }
+.action-3d-icon-box.cyan   { background: linear-gradient(135deg, #6ee7b7, #10b981); color: #fff; }
+.action-3d-icon-box.orange { background: linear-gradient(135deg, #fcd34d, #f59e0b); color: #fff; }
+.action-3d-icon-box.blue   { background: linear-gradient(135deg, #60a5fa, #2563eb); color: #fff; }
+
+.action-3d-title {
+  font-size: 14.5px;
+  font-weight: 800;
+  color: var(--text-main);
+  line-height: 1.2;
+}
+
+.action-3d-desc {
+  font-size: 11.5px;
+  color: var(--text-secondary);
+  line-height: 1.35;
+}
+
+/* ==============================================================================
+   CLAYMORPHIC CONTENT CARDS & FORMS
+   ============================================================================== */
+.clay-card {
+  background: #ffffff;
+  border-radius: var(--radius-xl);
+  padding: 20px;
+  box-shadow: var(--shadow-clay);
+  margin-bottom: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.8);
+}
+
+.clay-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.clay-card-title {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--text-main);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Forms & Inputs */
+.clay-input-group {
+  margin-bottom: 14px;
+}
+
+.clay-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.clay-input, .clay-select, .clay-textarea {
+  width: 100%;
+  padding: 13px 16px;
+  background: var(--surface-soft);
+  border: 2px solid transparent;
+  border-radius: var(--radius-md);
+  font-family: inherit;
+  font-size: 14px;
+  color: var(--text-main);
+  font-weight: 600;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.clay-input:focus, .clay-select:focus, .clay-textarea:focus {
+  background: #ffffff;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px rgba(124, 77, 255, 0.12);
+}
+
+.clay-button-primary {
+  width: 100%;
+  padding: 15px;
+  border-radius: var(--radius-lg);
+  background: var(--primary-gradient);
+  color: #ffffff;
+  font-weight: 800;
+  font-size: 15px;
+  border: none;
+  cursor: pointer;
+  box-shadow: var(--shadow-fab);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.clay-button-primary:active {
+  transform: scale(0.97);
+  box-shadow: 0 6px 14px rgba(124, 77, 255, 0.3);
+}
+
+.clay-button-secondary {
+  width: 100%;
+  padding: 13px;
+  border-radius: var(--radius-lg);
+  background: var(--surface-soft);
+  color: var(--primary);
+  font-weight: 700;
+  font-size: 14px;
+  border: 2px solid var(--accent-purple-soft);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.15s ease;
+}
+
+.clay-button-secondary:active {
+  background: var(--accent-purple-soft);
+}
+
+/* ==============================================================================
+   MONTH CALENDAR (Clean 3D Grid)
+   ============================================================================== */
+.cal-month-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.cal-month-title {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--text-main);
+}
+
+.cal-nav-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  background: var(--surface-soft);
+  border: none;
+  font-weight: 800;
+  color: var(--primary);
+  cursor: pointer;
+}
+
+.clay-calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+}
+
+.cal-cell-head {
+  text-align: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted);
+  padding: 6px 0;
+}
+
+.cal-cell-day {
+  aspect-ratio: 1;
+  border-radius: 14px;
+  background: var(--surface-soft);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-main);
+  cursor: pointer;
+  transition: transform 0.15s ease, background 0.15s ease;
+  position: relative;
+}
+
+.cal-cell-day:active {
+  transform: scale(0.9);
+}
+
+.cal-cell-day.filled {
+  background: linear-gradient(135deg, #4ade80, #10b981);
+  color: #ffffff;
+  box-shadow: 0 4px 10px rgba(16, 185, 129, 0.25);
+}
+
+.cal-cell-day.empty-warning {
+  background: linear-gradient(135deg, #f87171, #ef4444);
+  color: #ffffff;
+  box-shadow: 0 4px 10px rgba(239, 68, 68, 0.25);
+  animation: pulseWarning 2s infinite ease-in-out;
+}
+
+@keyframes pulseWarning {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+.cal-cell-day.weekend {
+  opacity: 0.45;
+  background: transparent;
+}
+
+.cal-cell-day.future {
+  opacity: 0.35;
+  cursor: default;
+}
+
+/* ==============================================================================
+   FLOATING BOTTOM NAVIGATION (Reference: Pill bar with floating center FAB)
+   ============================================================================== */
+.floating-bottom-nav {
+  position: fixed;
+  bottom: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 32px);
+  max-width: 440px;
+  height: 68px;
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 0 8px;
+  box-shadow: 0 16px 36px rgba(116, 82, 222, 0.25), 0 4px 12px rgba(116, 82, 222, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  z-index: 100;
+}
+
+.nav-item-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  flex: 1;
+  padding: 6px 0;
+  transition: color 0.15s ease, transform 0.15s ease;
+}
+
+.nav-item-btn svg {
+  width: 22px;
+  height: 22px;
+  stroke-width: 2.2;
+}
+
+.nav-item-btn span {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
+
+.nav-item-btn.active {
+  color: var(--primary);
+}
+
+.nav-item-btn.active svg {
+  stroke-width: 2.6;
+}
+
+/* Center 3D Floating Action Button */
+.nav-center-fab-wrap {
+  position: relative;
+  width: 64px;
+  display: flex;
+  justify-content: center;
+}
+
+.nav-center-fab {
+  position: absolute;
+  top: -32px;
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  background: var(--primary-gradient);
+  color: #ffffff;
+  border: 4px solid #ffffff;
+  box-shadow: var(--shadow-fab);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  cursor: pointer;
+  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.nav-center-fab:active {
+  transform: scale(0.92);
+}
+
+/* ==============================================================================
+   TOAST & MODALS (Clean Floating Claymorphic Sheets)
+   ============================================================================== */
+.clay-toast {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-100px);
+  background: rgba(43, 35, 83, 0.95);
+  color: #ffffff;
+  padding: 12px 20px;
+  border-radius: 30px;
+  font-size: 13px;
+  font-weight: 700;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.2);
+  z-index: 9999;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  pointer-events: none;
+}
+
+.clay-toast.active {
+  transform: translateX(-50%) translateY(0);
+}
+
+/* Floating Bottom Sheet Modal */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(43, 35, 83, 0.45);
+  backdrop-filter: blur(6px);
+  z-index: 200;
+  display: none;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.modal-overlay.active {
+  display: flex;
+}
+
+.modal-sheet {
+  background: #ffffff;
+  width: 100%;
+  max-width: 480px;
+  border-radius: 36px 36px 0 0;
+  padding: 24px 20px 34px 20px;
+  max-height: 85vh;
+  overflow-y: auto;
+  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.15);
+  animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+.modal-handle-bar {
+  width: 42px;
+  height: 5px;
+  background: #e2e8f0;
+  border-radius: 10px;
+  margin: 0 auto 16px auto;
+}
+

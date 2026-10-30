@@ -1,0 +1,1539 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>SiPENDEKAR Calo Assistant - e-Kinerja</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚡</text></svg>">
+  <link rel="stylesheet" href="/static/css/messenger.css?v=20261030_clay_v19">
+  <link rel="stylesheet" href="/static/css/modern_clay.css?v=20261030_clay_v19">
+</head>
+<body>
+
+  <!-- ==============================================================================
+       1. AUTHENTICATION VIEW (Clean Claymorphic 3D Login)
+       ============================================================================== -->
+  <div class="ms-login-overlay" id="view-login" style="display: none;">
+    <div class="ms-login-card">
+      <div class="ms-login-brand">
+        <div class="ms-messenger-logo">
+          <svg viewBox="0 0 36 36" fill="currentColor" width="36" height="36">
+            <path d="M18 2C9.16 2 2 8.7 2 17c0 4.7 2.3 8.9 6 11.7V34l5.1-2.8c1.5.4 3.2.8 4.9.8 8.8 0 16-6.7 16-15S26.84 2 18 2zm1.6 20.2l-4.1-4.4-8 4.4 8.8-9.4 4.1 4.4 7.9-4.4-8.7 9.4z"/>
+          </svg>
+        </div>
+        <h2 style="font-size: 22px; font-weight: 800; color: #2b2353; margin: 4px 0;">SiPENDEKAR</h2>
+        <span class="ms-brand-badge" style="background: #ede9fe; color: #6d28d9; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 700;">e-Kinerja Smart Assistant</span>
+      </div>
+
+      <p class="ms-login-desc" style="font-size: 13px; color: #6e6498; margin: 12px 0 20px 0; line-height: 1.5;">Masuk dengan akun SiPENDEKAR Anda untuk mengelola laporan e-Kinerja secara mandiri, otomatis, dan privat.</p>
+
+      <form id="form-login" onsubmit="handleLoginSubmit(event)">
+        <div class="clay-field-row" style="text-align: left;">
+          <label class="clay-label">NIP Pegawai (18 Digit)</label>
+          <input type="text" id="login-nip" class="clay-input" placeholder="Contoh: 199901062025041001" required autocomplete="username">
+          <input type="hidden" id="login-name" value="">
+        </div>
+
+        <div class="clay-field-row" style="text-align: left; margin-bottom: 16px;">
+          <label class="clay-label">Password SiPENDEKAR</label>
+          <input type="password" id="login-password" class="clay-input" placeholder="Password portal SiPENDEKAR" required autocomplete="current-password">
+        </div>
+
+        <!-- Prominent Error Alert Banner for Login Failures -->
+        <div id="login-error-alert" class="login-error-alert" style="display: none;">
+          <div class="login-error-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="8" x2="12" y2="12"></line>
+              <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+          </div>
+          <div class="login-error-content">
+            <div id="login-error-title" class="login-error-title">Gagal Masuk</div>
+            <div id="login-error-text" class="login-error-desc">NIP atau Password yang Anda masukkan tidak cocok di portal SiPENDEKAR.</div>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-submit-3d" id="btn-submit-login">
+          <span>Masuk ke SiPENDEKAR</span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+        </button>
+
+        <!-- Real-time Interactive Loading & Progress Indicator -->
+        <div id="login-loading-box" class="login-loading-box" style="display: none; margin-top: 16px;">
+          <div class="login-progress-track">
+            <div id="login-progress-fill" class="login-progress-fill"></div>
+          </div>
+          <div class="login-loading-details" style="display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 8px;">
+            <div class="login-status-dot"></div>
+            <span id="login-status-text" class="login-status-text" style="font-size: 12px; font-weight: 700; color: #6d28d9;">Memverifikasi kredensial akun...</span>
+          </div>
+          <div class="login-sub-notice" style="font-size: 11px; color: #8e85b8; margin-top: 4px;">
+            Portal resmi SiPENDEKAR sedang memvalidasi sesi e-Kinerja Anda. Mohon tunggu sejenak...
+          </div>
+        </div>
+      </form>
+
+      <div class="ms-privacy-notice" style="margin-top: 20px; font-size: 11px; color: #8e85b8; line-height: 1.4; display: flex; align-items: center; gap: 8px; background: #f8f6fe; padding: 10px 14px; border-radius: 14px;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#7c4dff" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+        <span><strong>Privasi Terjamin:</strong> Data dan sesi akun Anda terenkripsi penuh. Pengguna lain tidak dapat melihat akun atau riwayat laporan Anda.</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==============================================================================
+       2. MASTER APP SHELL (Clean Lilac 3D Mobile-First UI)
+       ============================================================================== -->
+  <div class="app-shell" id="app-messenger-view" style="display: none;">
+
+    <!-- Complete Compatibility Fallbacks for Existing JS Selectors -->
+    <div style="display: none !important;">
+      <div id="messenger-viewport"></div>
+      <div id="ms-center-panel"></div>
+      <div id="ms-sidebar-backdrop"></div>
+      <div id="ms-sidebar-left"></div>
+      <div id="ms-sidebar-right"></div>
+      <button id="btn-toggle-info"></button>
+      <span id="sidebar-cal-badge">100%</span>
+      <span id="sidebar-sch-dot"></span>
+      <span id="sidebar-sch-status">Auto</span>
+      <span id="stat-today-menit">0</span>
+      <span id="stat-today-badge">0</span>
+      <span id="right-stat-menit">0</span>
+      <span id="right-stat-hari">0</span>
+      <span id="right-stat-h7">0</span>
+      <span id="conv-badge-progress">0%</span>
+      <span id="conv-preview-progress">0%</span>
+      <span id="conv-preview-calendar">0%</span>
+      <span id="conv-preview-chats">Chat</span>
+      <span id="ms-active-avatar">U</span>
+      <span id="active-chat-status-text">Online</span>
+      <span id="viewmode-icon">📱</span>
+      <span id="simple-form-latency-badge">⚡</span>
+      <span id="stage-cal-latency-badge">⚡</span>
+      <span id="sch-standar-display"></span>
+      <span id="sch-input-keterangan"></span>
+      <div id="history-list-container"></div>
+      <div id="bot-typing-indicator"></div>
+      <span id="typing-status-label"></span>
+      <button id="btn-submit-activity"></button>
+      <span id="duration-calc-label"></span>
+      <input type="text" id="form-kode-act">
+      <input type="text" id="form-tanggal">
+      <select id="form-skp-select"></select>
+      <input type="text" id="form-volume">
+      <input type="text" id="form-jam-mulai">
+      <input type="text" id="form-menit-mulai">
+      <input type="text" id="form-jam-selesai">
+      <input type="text" id="form-menit-selesai">
+      <textarea id="form-keterangan"></textarea>
+    </div>
+
+    <!-- Top Header -->
+    <header class="top-header">
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <button id="header-back-home-btn" class="header-tool-btn" onclick="switchViewTab('home')" title="Kembali ke Beranda" style="display: none;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
+        </button>
+        <div class="user-profile-badge" onclick="switchViewTab('home')">
+          <div class="user-avatar-3d" id="sidebar-user-avatar">U</div>
+          <div class="user-text-info">
+            <div class="user-name-title" id="header-user-name">Pegawai</div>
+            <div class="user-nip-sub" id="header-user-nip">199901062025041001</div>
+          </div>
+        </div>
+      </div>
+            <!-- Desktop Top Navigation Bar (Visible on Desktop / Laptop) -->
+      <nav class="desktop-nav-tabs">
+        <button class="desktop-tab-btn top-nav-tab ms-conv-item active" data-tab="home" onclick="switchViewTab('home')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+          <span>Beranda</span>
+        </button>
+        <button class="desktop-tab-btn top-nav-tab ms-conv-item" data-tab="calendar" onclick="switchViewTab('calendar')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+          <span>Kalender</span>
+        </button>
+        <button class="desktop-tab-btn top-nav-tab ms-conv-item" data-tab="history" onclick="switchViewTab('history')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+          <span>Histori</span>
+        </button>
+        <button class="desktop-tab-btn top-nav-tab ms-conv-item" data-tab="review" onclick="switchViewTab('review')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"></path><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+          <span>Review</span>
+          <span class="review-nav-badge" id="nav-review-badge">3/3</span>
+        </button>
+      </nav>
+      <div class="header-tools">
+        <div class="latency-pill-clay" id="header-sipendekar-latency" onclick="checkSipendekarLatency()" title="Klik untuk cek ulang latensi SiPENDEKAR">
+          <span>⚡ SiPENDEKAR</span>
+        </div>
+        <button class="header-tool-btn" onclick="fetchProgress()" title="Segarkan Data">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M23 4v6h-6"></path><path d="M1 20v-6h6"></path><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+        </button>
+        <button class="header-tool-btn" onclick="handleLogout()" title="Keluar">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Scrollable Content Body -->
+    <div class="app-content-body">
+
+      <!-- ================= VIEW 0: BERANDA / HOME DASHBOARD ================= -->
+      <section class="ms-tab-pane active" id="view-home">
+        <!-- Active Section Title -->
+        <div class="section-title-row">
+          <h2 class="section-title-text" id="active-chat-name">Beranda e-Kinerja</h2>
+          <span class="section-title-action" onclick="fetchProgress()">🔄 Refresh</span>
+        </div>
+
+                <!-- 3D Hero Banner (Responsive: 2-column on desktop, stacked on mobile) -->
+        <div class="clay-hero-card">
+          <div class="hero-card-left">
+            <h1 class="hero-main-title">Kelola Laporan Kinerja Lebih Cepat</h1>
+            <p class="hero-main-desc" id="yesterday-hint-text">1-Klik salin kegiatan hari kemarin atau gunakan form cepat tanpa antre portal.</p>
+            <div style="margin-top: 10px;">
+              <button type="button" class="btn-clay-pill" id="btn-copy-yesterday" onclick="directCloneYesterdayActivities()">
+                <span>⚡ Input Persis Hari Kemarin</span>
+              </button>
+            </div>
+          </div>
+          
+          <div class="hero-card-right">
+            <div class="hero-stats-grid">
+              <div class="hero-stat-box">
+                <div class="hero-stat-label">Capaian Bulan Ini</div>
+                <div class="hero-stat-val" id="stage-stat-pct-val">0%</div>
+                <div class="hero-stat-sub" id="stage-stat-hari-kerja">0 Hari Dilaporkan</div>
+              </div>
+              <div class="hero-stat-box">
+                <div class="hero-stat-label">Total Menit Kerja</div>
+                <div class="hero-stat-val" id="stage-stat-bulan-menit">0 m</div>
+                <div class="hero-stat-sub" id="stage-stat-h7-count">0 Hari Kosong</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4 Quick 3D Action Tiles (Grid 2x2 directly matching reference image) -->
+        <div class="section-title-row">
+          <span class="section-title-text">Aksi Cepat</span>
+          <span class="section-title-action" onclick="openPromptTemplateModal()">💡 Bantuan</span>
+        </div>
+
+        <div class="clay-tiles-grid">
+          <!-- Tile 1: Form Input Simpel -->
+          <div class="clay-tile-card" onclick="switchViewTab('simple-input')">
+            <div class="tile-icon-box orange">
+              <span>✏️</span>
+            </div>
+            <div>
+              <div class="tile-title">Input Simpel</div>
+              <div class="tile-desc">Buka formulir 1-klik dengan 2.123 kegiatan</div>
+            </div>
+          </div>
+
+          <!-- Tile 2: Kalender -->
+          <div class="clay-tile-card" onclick="switchViewTab('calendar')">
+            <div class="tile-icon-box blue">
+              <span>📅</span>
+            </div>
+            <div>
+              <div class="tile-title">Kalender</div>
+              <div class="tile-desc">Buka kalender bulanan & cek hari bolong</div>
+            </div>
+          </div>
+
+          <!-- Tile 3: Histori & Input Ulang -->
+          <div class="clay-tile-card" onclick="switchViewTab('history')">
+            <div class="tile-icon-box green">
+              <span>📋</span>
+            </div>
+            <div>
+              <div class="tile-title">Histori</div>
+              <div class="tile-desc">Buka daftar riwayat & salin kegiatan</div>
+            </div>
+          </div>
+
+          <!-- Tile 4: Jadwal Otomatis (Scheduler) -->
+          <div class="clay-tile-card" onclick="switchViewTab('scheduler')">
+            <div class="tile-icon-box purple">
+              <span>🤖</span>
+            </div>
+            <div>
+              <div class="tile-title">Jadwal Auto</div>
+              <div class="tile-desc">Buka pengaturan auto-fill hari kerja</div>
+            </div>
+          </div>
+
+          <!-- Tile 5: Review Perilaku & Kinerja -->
+          <div class="clay-tile-card" onclick="switchViewTab('review')">
+            <div class="tile-icon-box amber" style="background: linear-gradient(135deg, #fef3c7, #fde68a); color: #d97706;">
+              <span>⭐</span>
+            </div>
+            <div>
+              <div class="tile-title" style="display: flex; align-items: center; gap: 6px;">
+                <span>Review</span>
+                <span id="tile-review-badge" class="badge-mini-clay" style="background: #fee2e2; color: #dc2626; font-size: 10px; font-weight: 800; padding: 2px 6px; border-radius: 8px;">3/3</span>
+              </div>
+              <div class="tile-desc">Status review perilaku 360° & validasi</div>
+            </div>
+          </div>
+        </div>
+
+
+      </section>
+
+      <!-- VIEW PANES (Clean Dedicated Claymorphic Screens) -->
+
+      <!-- ================= VIEW 1: KALENDER E-KINERJA ================= -->
+      <section class="ms-tab-pane" id="view-calendar">
+        <div class="stage-content-wrap">
+          <!-- Clean View Top Navigation Bar -->
+          <div class="view-header-bar">
+            <button type="button" class="view-back-pill" onclick="switchViewTab('home')" title="Kembali ke Beranda">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
+              <span>Beranda</span>
+            </button>
+            <div class="view-header-title">
+              <span>📅 Kalender</span>
+              <span id="stage-cal-month-name" style="font-size: 13px; font-weight: 800; color: #6d28d9; background: #ede9fe; padding: 4px 10px; border-radius: 12px; margin-left: 6px;">Oktober 2026</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <button type="button" class="ms-refresh-pill" onclick="fetchProgress()">🔄 Refresh</button>
+              <button type="button" class="btn-primary-action stage-action-hide-mobile" style="padding: 7px 14px; font-size: 12px; width: auto;" onclick="switchViewTab('simple-input'); resetSimpleInputForm();">✍️ Input Laporan</button>
+            </div>
+          </div>
+
+          <div class="stage-card">
+            <!-- Compact Single-Line Stats Summary Bar (Keeps all JS IDs intact) -->
+            <div class="calendar-compact-stats-bar">
+              <div class="cal-stat-pill">
+                <span class="cal-stat-icon">📊</span>
+                <span class="cal-stat-title">Capaian:</span>
+                <strong id="stage-stat-pct-val" class="cal-stat-val">0%</strong>
+                <span id="stage-stat-hari-kerja" class="cal-stat-sub">(0 Hari Dilaporkan)</span>
+              </div>
+              <div class="cal-stat-pill">
+                <span class="cal-stat-icon">⏱️</span>
+                <span class="cal-stat-title">Total:</span>
+                <strong id="stage-stat-bulan-menit" class="cal-stat-val">0 m</strong>
+                <span id="stage-stat-bulan-badge" class="cal-stat-badge">TERPENUHI</span>
+              </div>
+              <div class="cal-stat-pill">
+                <span class="cal-stat-icon">⚠️</span>
+                <span class="cal-stat-title">Bolong:</span>
+                <strong id="stage-stat-h7-count" class="cal-stat-val" style="color: #ef4444;">0 Hari</strong>
+              </div>
+              <!-- Hidden SVG circle for JS selector compatibility -->
+              <svg style="display: none;"><circle id="stage-circle-progress-bar"></circle></svg>
+            </div>
+
+            <!-- Urgent Alert Banner -->
+            <div class="ms-urgent-card" id="stage-urgent-card" style="display: none; margin-bottom: 16px;">
+              <div class="urgent-left">
+                <div class="urgent-icon-pill">⚠️</div>
+                <div>
+                  <h4 style="margin: 0; font-size: 13px; font-weight: 700;">Perhatian: Ada Hari Kerja yang Belum Dilaporkan</h4>
+                  <p id="stage-urgent-text-desc" style="margin: 2px 0 0; font-size: 12px;">Memeriksa hari kerja yang kosong...</p>
+                </div>
+              </div>
+              <button class="btn-autofill-bright" onclick="switchViewTab('simple-input')">
+                ✍️ Isi Hari Kosong
+              </button>
+            </div>
+
+            <!-- Interactive Month Calendar Grid -->
+            <div class="ms-calendar-box" style="padding: 16px; border: 1.5px solid #ece5fc; border-radius: 20px; background: #ffffff;">
+              <div class="cal-grid cal-days-head">
+                <div class="cal-head-day">Sen</div>
+                <div class="cal-head-day">Sel</div>
+                <div class="cal-head-day">Rab</div>
+                <div class="cal-head-day">Kam</div>
+                <div class="cal-head-day">Jum</div>
+                <div class="cal-head-day weekend">Sab</div>
+                <div class="cal-head-day weekend">Min</div>
+              </div>
+
+              <div class="cal-grid" id="stage-cal-days-grid">
+                <!-- Rendered via JS -->
+              </div>
+            </div>
+
+            <div style="margin-top: 14px; font-size: 12px; color: #6e6498; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+              <div style="display: flex; gap: 14px; flex-wrap: wrap;">
+                <span>🟢 <strong style="color: #10b981;">Hijau:</strong> Diterima (ACC)</span>
+                <span>🔵 <strong style="color: #0284c7;">Biru:</strong> Proses (Bisa Diedit)</span>
+                <span>🔴 <strong style="color: #ef4444;">Merah:</strong> Belum Lapor</span>
+                <span>⚪ <strong style="color: #94a3b8;">Abu:</strong> Libur</span>
+              </div>
+              <span>💡 <em>Klik tanggal pada kalender untuk melihat / edit rincian kegiatan</em></span>
+            </div>
+          </div>
+          <div class="bottom-spacer-safe"></div>
+        </div>
+      </section>
+
+      <!-- ================= VIEW 2: FORM INPUT SIMPEL ================= -->
+      <section class="ms-tab-pane" id="view-simple-input">
+        <div class="stage-content-wrap">
+          <!-- Clean View Top Navigation Bar -->
+          <div class="view-header-bar">
+            <button type="button" class="view-back-pill" onclick="switchViewTab('home')" title="Kembali ke Beranda">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
+              <span>Beranda</span>
+            </button>
+            <div class="view-header-title">✏️ Form Input Simpel</div>
+            <button type="button" class="ms-refresh-pill" onclick="fetchProgress()">🔄 Refresh</button>
+          </div>
+
+          <div class="stage-card">
+            <div class="stage-card-header">
+              <div>
+                <h2 class="stage-card-title">✍️ Formulir Laporan e-Kinerja</h2>
+                <div class="stage-card-subtitle">Ketik & pilih kegiatan dari 2.123 katalog SiPENDEKAR resmi</div>
+              </div>
+              <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;" class="stage-action-hide-mobile">
+                <span id="simple-form-latency-badge" class="latency-pill-clay" onclick="checkSipendekarLatency()" title="Klik untuk cek ulang latensi SiPENDEKAR">⚡ SiPENDEKAR: ...</span>
+              </div>
+            </div>
+
+            <!-- Quick Banner: Input Persis Seperti Hari Kemarin -->
+            <div class="yesterday-quick-banner">
+              <div class="yesterday-banner-left">
+                <div class="yesterday-banner-icon">⚡</div>
+                <div class="yesterday-banner-text">
+                  <div class="yesterday-banner-title">Input Persis Seperti Hari Kemarin?</div>
+                  <div class="yesterday-banner-sub" id="yesterday-hint-text">1-Klik salin kegiatan & jam kerja kemarin langsung ke portal SiPENDEKAR.</div>
+                </div>
+              </div>
+              <button type="button" class="btn-copy-yesterday" id="btn-copy-yesterday" onclick="directCloneYesterdayActivities()">
+                <span>⚡ Input Persis Kemarin</span>
+              </button>
+            </div>
+
+            <!-- Edit Mode Banner -->
+            <div id="simple-edit-mode-banner" style="display: none; background: #e0f2fe; border: 1.5px solid #7dd3fc; border-radius: 14px; padding: 12px 16px; margin-bottom: 16px; align-items: center; justify-content: space-between; gap: 12px;">
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <span style="font-size: 20px;">✏️</span>
+                <div>
+                  <div style="font-size: 13px; font-weight: 800; color: #0369a1;">Mode Edit Aktivitas</div>
+                  <div style="font-size: 11.5px; color: #0284c7;" id="simple-edit-mode-desc">Mengubah aktivitas SiPENDEKAR</div>
+                </div>
+              </div>
+              <button type="button" onclick="cancelSimpleEditMode()" style="background: #ffffff; color: #0369a1; border: 1.5px solid #bae6fd; border-radius: 8px; padding: 5px 12px; font-size: 12px; font-weight: 700; cursor: pointer; white-space: nowrap; transition: all 0.15s ease;">
+                ✕ Batal Edit
+              </button>
+            </div>
+
+            <form id="form-simple-stage-input" onsubmit="handleSimpleStageSubmit(event)">
+              <input type="hidden" id="simple-input-id" value="">
+              <div class="simple-form-grid">
+                <!-- Field 1: Tanggal Pelaksanaan -->
+                <div class="form-group-row">
+                  <label class="simple-label" for="simple-input-tanggal">Tanggal Pelaksanaan</label>
+                  <input type="date" class="simple-input" id="simple-input-tanggal" required>
+                </div>
+
+                <!-- Field 2: Sasaran Kinerja Pegawai (Full Width) -->
+                <div class="form-group-row">
+                  <label class="simple-label" for="simple-input-skp">Sasaran Kinerja Pegawai (SKP Portal)</label>
+                  <select class="simple-select" id="simple-input-skp">
+                    <!-- Loaded from portal -->
+                  </select>
+                </div>
+
+                <!-- Field 3: Nama Kegiatan (Autocomplete with 2.123 catalog) -->
+                <div class="form-group-row">
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                    <label class="simple-label" style="margin-bottom: 0;">Nama Kegiatan <span style="font-size: 11.5px; font-weight: normal; color: #6e6498;">(2.123 Katalog)</span></label>
+                    <span id="simple-selected-code" style="display: none; font-size: 11px; font-weight: 700; color: #6d28d9; background: #ede9fe; padding: 2px 8px; border-radius: 8px; border: 1px solid #d8b4fe;"></span>
+                  </div>
+
+                  <!-- Interactive Direct Autocomplete Search Box -->
+                  <div class="autocomplete-search-wrapper" id="simple-activity-search-wrap">
+                    <div class="autocomplete-input-wrap">
+                      <span class="autocomplete-icon-left">🔍</span>
+                      <input type="text" class="simple-input" id="simple-search-activity" placeholder="Ketik nama kegiatan (misal: arsip, rapat, surat, IT)..." autocomplete="off" value="" required oninput="onSimpleSearchInput(this.value)" onfocus="onSimpleSearchFocus()" onkeydown="onSimpleSearchKeyDown(event)">
+                      <button type="button" class="autocomplete-clear-btn" id="simple-search-clear" onclick="clearSimpleActivitySearch()" title="Hapus pencarian" style="display: none;">✕</button>
+                    </div>
+                    <div class="autocomplete-dropdown" id="simple-activity-autocomplete-list"></div>
+                  </div>
+
+                  <input type="hidden" id="simple-val-kode" value="">
+                  <input type="hidden" id="simple-val-nama" value="">
+                  <input type="hidden" id="simple-val-waktu" value="60">
+                  <input type="hidden" id="simple-val-satuan" value="Kegiatan">
+                </div>
+
+                <!-- Field 4: Volume Output with Standard Duration Badge -->
+                <div class="form-group-row">
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                    <label class="simple-label" style="margin-bottom: 0;">Volume Output</label>
+                    <span id="simple-standar-display" class="standar-badge-pill">Standar: 60 Menit</span>
+                  </div>
+                  <input type="number" class="simple-input" id="simple-input-volume" min="1" max="99" value="1" oninput="syncSimpleTimeFromVolume()" required placeholder="Jumlah volume (misal: 1)">
+                </div>
+
+                <!-- Field 5: Jam Mulai & Jam Selesai -->
+                <div class="form-group-row form-time-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+                  <div>
+                    <label class="simple-label">Jam Mulai</label>
+                    <input type="time" class="simple-input" id="simple-input-time-start" value="07:30" oninput="syncSimpleDuration()" required>
+                  </div>
+                  <div>
+                    <label class="simple-label">Jam Selesai</label>
+                    <input type="time" class="simple-input" id="simple-input-time-end" value="12:30" oninput="syncSimpleDuration()" required>
+                  </div>
+                </div>
+
+                <!-- Field 6: Duration Summary Bar -->
+                <div class="simple-duration-bar">
+                  <span id="simple-duration-display">⏱️ Durasi Laporan: 300 Menit (5.0 Jam)</span>
+                  <span class="simple-duration-tag">Kalkulasi Otomatis</span>
+                </div>
+
+                <!-- Field 7: Keterangan / Uraian Tugas -->
+                <div class="form-group-row">
+                  <label class="simple-label">Keterangan / Uraian Tugas</label>
+                  <textarea class="simple-textarea" id="simple-input-keterangan" rows="3" placeholder="Tuliskan uraian hasil pelaksanaan tugas..." required></textarea>
+                </div>
+
+                <!-- Field 8: Submit Button -->
+                <button type="submit" class="btn-primary-action" id="btn-submit-simple-stage">
+                  <span>🚀 1-Klik Kirim Laporan ke SiPENDEKAR</span>
+                </button>
+              </div>
+            </form>
+          </div>
+          <div class="bottom-spacer-safe"></div>
+        </div>
+      </section>
+
+      <!-- ================= VIEW 3: HISTORI KEGIATAN ================= -->
+      <section class="ms-tab-pane" id="view-history">
+        <div class="stage-content-wrap">
+          <!-- Clean View Top Navigation Bar -->
+          <div class="view-header-bar">
+            <button type="button" class="view-back-pill" onclick="switchViewTab('home')" title="Kembali ke Beranda">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
+              <span>Beranda</span>
+            </button>
+            <div class="view-header-title">📋 Histori Kegiatan</div>
+            <button type="button" class="ms-refresh-pill" onclick="loadActivitiesHistory()">🔄 Refresh</button>
+          </div>
+
+          <div class="stage-card">
+            <div class="stage-card-header">
+              <div>
+                <h2 class="stage-card-title">📜 Riwayat Kegiatan & 1-Klik Salin</h2>
+                <div class="stage-card-subtitle">Pilih kegiatan terdahulu untuk salin langsung ke form atau hari ini</div>
+              </div>
+            </div>
+
+            <!-- Quick Filter -->
+            <div style="margin-bottom: 16px;">
+              <input type="text" class="simple-input" id="history-search-filter" placeholder="🔍 Cari histori kegiatan (misal: arsip, rapat, surat, IT)..." oninput="filterHistoryCards(this.value)">
+            </div>
+
+            <!-- Activity Cards Container -->
+            <div class="activity-card-list" id="history-items-container">
+              <div style="text-align: center; padding: 40px; color: #6e6498;">
+                Memuat riwayat kegiatan dari SiPENDEKAR...
+              </div>
+            </div>
+          </div>
+          <div class="bottom-spacer-safe"></div>
+        </div>
+      </section>
+
+      <!-- ================= VIEW 4: JADWAL OTOMATIS (AUTO-FILL) ================= -->
+      <section class="ms-tab-pane" id="view-scheduler">
+        <div class="stage-content-wrap">
+          <!-- Clean View Top Navigation Bar -->
+          <div class="view-header-bar">
+            <button type="button" class="view-back-pill" onclick="switchViewTab('home')" title="Kembali ke Beranda">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
+              <span>Beranda</span>
+            </button>
+            <div class="view-header-title">🤖 Jadwal Otomatis</div>
+            <button type="button" class="ms-refresh-pill" onclick="fetchProgress()">🔄 Refresh</button>
+          </div>
+
+          <div class="stage-card">
+            <div class="stage-card-header">
+              <div>
+                <h2 class="stage-card-title">⏰ Pengaturan Auto-Fill e-Kinerja</h2>
+                <div class="stage-card-subtitle">Pengisian e-Kinerja otomatis di hari kerja selanjutnya</div>
+              </div>
+              <div id="sch-header-status-badge" style="background: #ede9fe; color: #6d28d9; padding: 4px 12px; border-radius: 20px; font-size: 11.5px; font-weight: 800;">
+                ⚪ Memeriksa Status...
+              </div>
+            </div>
+
+            <!-- Penjelasan Fitur Lengkap & Edukatif -->
+            <div class="scheduler-explainer">
+              <h4>💡 Cara Kerja Fitur Jadwal Otomatis (Scheduler):</h4>
+              <ul style="margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px;">
+                <li><strong>Berjalan 24 Jam di Background Server:</strong> Bot bekerja otomatis tanpa mengharuskan Anda membuka browser atau HP setiap pagi.</li>
+                <li><strong>Eksekusi Terjadwal Hari Kerja (Senin - Jumat):</strong> Sistem akan otomatis mengecek portal pada jam yang Anda tentukan (misalnya jam <strong>08:00 WIB</strong>).</li>
+                <li><strong>Anti-Duplicate Guard (Aman & Bebas Bentrok):</strong> Bot memvalidasi riwayat di portal resmi. Jika tanggal tersebut <em>sudah diisi</em>, bot <strong>TIDAK AKAN</strong> mengirim laporan ganda.</li>
+              </ul>
+            </div>
+
+            <!-- Scheduler Toggle Switch Banner -->
+            <div class="scheduler-status-banner">
+              <div>
+                <div style="font-size: 14.5px; font-weight: 800; color: #2b2353;">Status Pengisian Otomatis</div>
+                <div style="font-size: 12px; color: #6e6498;" id="sch-status-description">Aktifkan agar bot otomatis mengisi kegiatan setiap pagi kerja.</div>
+              </div>
+              <label class="scheduler-toggle-switch">
+                <input type="checkbox" id="sch-switch-active" class="switch-checkbox" onchange="onSchedulerSwitchToggle(this.checked)">
+                <span class="switch-slider"></span>
+              </label>
+            </div>
+
+            <!-- Scheduler Configuration Form -->
+            <form id="form-scheduler-config" onsubmit="saveSchedulerConfigForm(event)">
+              <div class="simple-form-grid">
+
+                <!-- Mode Selector -->
+                <div class="form-group-row">
+                  <label class="simple-label">Pilihan Jenis Penjadwalan</label>
+                  <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <div class="sch-mode-card active" id="sch-mode-date-card" onclick="selectSchedulerMode('specific_date')">
+                      <input type="radio" name="sch_mode" id="sch-mode-date" value="specific_date" checked style="accent-color: #7c4dff; width: 18px; height: 18px;">
+                      <div>
+                        <div style="font-weight: 800; font-size: 13px; color: #2b2353;">📅 Tanggal Tertentu (Spesifik)</div>
+                        <div style="font-size: 11px; color: #6e6498;">Targetkan pengisian otomatis ke 1 tanggal pilihan (misal: besok)</div>
+                      </div>
+                    </div>
+                    <div class="sch-mode-card" id="sch-mode-weekday-card" onclick="selectSchedulerMode('daily_weekday')">
+                      <input type="radio" name="sch_mode" id="sch-mode-weekday" value="daily_weekday" style="accent-color: #7c4dff; width: 18px; height: 18px;">
+                      <div>
+                        <div style="font-weight: 800; font-size: 13px; color: #2b2353;">🔄 Rutin Setiap Hari Kerja</div>
+                        <div style="font-size: 11px; color: #6e6498;">Bot otomatis berjalan setiap hari Senin s/d Jumat</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Tanggal Target (Aktif bila Tanggal Tertentu) -->
+                <div class="form-group-row" id="sch-target-date-wrap">
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; flex-wrap: wrap; gap: 6px;">
+                    <label class="simple-label" style="margin-bottom: 0;">Tanggal Target Yang Dijadwalkan</label>
+                    <div style="display: flex; gap: 6px;">
+                      <button type="button" class="btn-copy-yesterday-pill" onclick="setSchedulerTargetDateOffset(0)">Hari Ini</button>
+                      <button type="button" class="btn-copy-yesterday-pill" onclick="setSchedulerTargetDateOffset(1)">Besok</button>
+                      <button type="button" class="btn-copy-yesterday-pill" onclick="setSchedulerTargetDateOffset(2)">Lusa</button>
+                      <button type="button" class="btn-copy-yesterday-pill" onclick="setSchedulerNextMonday()">Senin Depan</button>
+                    </div>
+                  </div>
+                  <input type="date" class="simple-input" id="sch-target-date" style="font-weight: 800; font-size: 14px; color: #5b21b6;" required>
+                </div>
+
+                <!-- Hari Kerja (Aktif bila Rutin Hari Kerja) -->
+                <div class="form-group-row" id="sch-weekdays-wrap" style="display: none;">
+                  <label class="simple-label">Hari Operasional (Hari Kerja Aktif)</label>
+                  <div style="display: flex; gap: 12px; flex-wrap: wrap; background: #f8f6fe; padding: 10px 14px; border-radius: 14px; border: 1.5px solid #ebe5f8;">
+                    <label style="display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; color: #2b2353;"><input type="checkbox" id="sch-day-mon" value="mon" checked> Senin</label>
+                    <label style="display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; color: #2b2353;"><input type="checkbox" id="sch-day-tue" value="tue" checked> Selasa</label>
+                    <label style="display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; color: #2b2353;"><input type="checkbox" id="sch-day-wed" value="wed" checked> Rabu</label>
+                    <label style="display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; color: #2b2353;"><input type="checkbox" id="sch-day-thu" value="thu" checked> Kamis</label>
+                    <label style="display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; color: #2b2353;"><input type="checkbox" id="sch-day-fri" value="fri" checked> Jumat</label>
+                    <label style="display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; color: #6d28d9;"><input type="checkbox" id="sch-day-sat" value="sat"> Sabtu (Shift)</label>
+                    <label style="display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; color: #6d28d9;"><input type="checkbox" id="sch-day-sun" value="sun"> Minggu (Shift)</label>
+                  </div>
+                </div>
+
+                <!-- Jam Eksekusi -->
+                <div class="form-group-row">
+                  <label class="simple-label">Jam Eksekusi Otomatis</label>
+                  <input type="time" class="simple-input" id="sch-time-input" value="08:00" required>
+                </div>
+
+                <!-- Shortcut Banner: Samakan dg 2 Template Kemarin -->
+                <div class="sch-shortcut-banner">
+                  <div>
+                    <div style="font-weight: 800; font-size: 13px; color: #15803d; display: flex; align-items: center; gap: 6px;">
+                      <span>⚡ Shortcut Instan 2 Template SiPENDEKAR</span>
+                      <span style="background: #bbf7d0; color: #166534; font-size: 10.5px; padding: 2px 7px; border-radius: 6px; font-weight: 800;">480 Menit (8 Jam)</span>
+                    </div>
+                    <div style="font-size: 11.5px; color: #166534; margin-top: 2px;">
+                      Isi otomatis Template 1 (Pagi) & Template 2 (Siang) persis seperti data kegiatan kerja kemarin.
+                    </div>
+                  </div>
+                  <button type="button" class="btn-copy-yesterday" onclick="copyYesterdayToScheduler()" style="background: #16a34a;">
+                    <span>⚡ Samakan dg 2 Template Kemarin</span>
+                  </button>
+                </div>
+
+                <!-- TEMPLATE 1: SESI PAGI / UTAMA -->
+                <div class="sch-template-card">
+                  <div class="sch-template-card-header">
+                    <div style="font-weight: 800; font-size: 13.5px; color: #2b2353; display: flex; align-items: center; gap: 8px;">
+                      <span class="sch-template-badge">1</span>
+                      <span>Template 1 (Sesi Pagi / Kegiatan Utama)</span>
+                    </div>
+                    <span id="sch-selected-code" style="font-size: 11px; font-weight: 800; color: #6d28d9; background: #ede9fe; padding: 3px 8px; border-radius: 6px; border: 1px solid #d8b4fe;">UTAMA00529</span>
+                  </div>
+
+                  <!-- Direct Autocomplete for Template 1 -->
+                  <div class="form-group-row">
+                    <label class="simple-label">Nama Kegiatan (Auto-Complete Search)</label>
+                    <div class="autocomplete-search-wrapper" id="sch-activity-search-wrap">
+                      <div class="autocomplete-input-wrap">
+                        <span class="autocomplete-icon-left">🔍</span>
+                        <input type="text" class="simple-input" id="sch-search-activity" placeholder="Ketik nama kegiatan template 1..." autocomplete="off" value="Membuat rekapitulasi data" required oninput="onSchedulerSearchInput(this.value)" onfocus="onSchedulerSearchFocus()" onkeydown="onSchedulerSearchKeyDown(event)">
+                        <button type="button" class="autocomplete-clear-btn" id="sch-search-clear" onclick="clearSchedulerActivitySearch()" title="Hapus">✕</button>
+                      </div>
+                      <div class="autocomplete-dropdown" id="sch-activity-autocomplete-list"></div>
+                    </div>
+
+                    <input type="hidden" id="sch-val-kode" value="UTAMA00529">
+                    <input type="hidden" id="sch-val-nama" value="Membuat rekapitulasi data">
+                    <input type="hidden" id="sch-val-waktu" value="60">
+                    <input type="hidden" id="sch-val-satuan" value="Laporan">
+                  </div>
+
+                  <div class="form-group-row two-col">
+                    <div>
+                      <label class="simple-label">Sasaran Kinerja Pegawai (SKP Portal)</label>
+                      <select class="simple-select" id="sch-skp-select">
+                        <!-- Filled via JS -->
+                      </select>
+                    </div>
+                    <div>
+                      <label class="simple-label">Volume Output</label>
+                      <input type="number" class="simple-input" id="sch-volume-input" min="1" max="99" value="4" oninput="syncSchedulerTimeFromVolume()" required>
+                    </div>
+                  </div>
+
+                  <div class="form-group-row two-col">
+                    <div>
+                      <label class="simple-label">Jam Mulai</label>
+                      <input type="time" class="simple-input" id="sch-time-start" value="08:00" oninput="syncSchedulerDuration()" required>
+                    </div>
+                    <div>
+                      <label class="simple-label">Jam Selesai</label>
+                      <input type="time" class="simple-input" id="sch-time-end" value="12:00" oninput="syncSchedulerDuration()" required>
+                    </div>
+                  </div>
+
+                  <div class="form-group-row" style="margin-bottom: 0;">
+                    <label class="simple-label">Keterangan / Uraian Tugas Laporan</label>
+                    <textarea class="simple-textarea" id="sch-keterangan-input" rows="2" required>Merekap data absensi kedinasan.</textarea>
+                  </div>
+                </div>
+
+                <!-- TEMPLATE 2: SESI SIANG / TAMBAHAN -->
+                <div class="sch-template-card">
+                  <div class="sch-template-card-header">
+                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: 800; font-size: 13.5px; color: #2b2353; margin: 0;">
+                      <input type="checkbox" id="sch-enable-tmpl2" checked style="width: 18px; height: 18px; accent-color: #7c4dff;" onchange="toggleSchedulerTemplate2(this.checked)">
+                      <span class="sch-template-badge">2</span>
+                      <span>Aktifkan Template 2 (Sesi Siang / Tambahan)</span>
+                    </label>
+                    <span id="sch-selected-code2" style="font-size: 11px; font-weight: 800; color: #6d28d9; background: #ede9fe; padding: 3px 8px; border-radius: 6px; border: 1px solid #d8b4fe;">UTAMA00926</span>
+                  </div>
+
+                  <div id="sch-tmpl2-fields">
+                    <!-- Direct Autocomplete for Template 2 -->
+                    <div class="form-group-row">
+                      <label class="simple-label">Nama Kegiatan Template 2 (Auto-Complete Search)</label>
+                      <div class="autocomplete-search-wrapper" id="sch-activity-search-wrap2">
+                        <div class="autocomplete-input-wrap">
+                          <span class="autocomplete-icon-left">🔍</span>
+                          <input type="text" class="simple-input" id="sch-search-activity2" placeholder="Ketik nama kegiatan template 2..." autocomplete="off" value="Pengurusan administrasi kepegawaian" oninput="onSchedulerSearchInput2(this.value)" onfocus="onSchedulerSearchFocus2()" onkeydown="onSchedulerSearchKeyDown2(event)">
+                          <button type="button" class="autocomplete-clear-btn" id="sch-search-clear2" onclick="clearSchedulerActivitySearch2()" title="Hapus">✕</button>
+                        </div>
+                        <div class="autocomplete-dropdown" id="sch-activity-autocomplete-list2"></div>
+                      </div>
+
+                      <input type="hidden" id="sch-val-kode2" value="UTAMA00926">
+                      <input type="hidden" id="sch-val-nama2" value="Pengurusan administrasi kepegawaian">
+                      <input type="hidden" id="sch-val-waktu2" value="60">
+                      <input type="hidden" id="sch-val-satuan2" value="Dokumen/ Laporan">
+                    </div>
+
+                    <div class="form-group-row two-col">
+                      <div>
+                        <label class="simple-label">Sasaran Kinerja Pegawai (SKP Portal)</label>
+                        <select class="simple-select" id="sch-skp-select2">
+                          <!-- Filled via JS -->
+                        </select>
+                      </div>
+                      <div>
+                        <label class="simple-label">Volume Output</label>
+                        <input type="number" class="simple-input" id="sch-volume-input2" min="1" max="99" value="4" oninput="syncSchedulerTimeFromVolume2()">
+                      </div>
+                    </div>
+
+                    <div class="form-group-row two-col">
+                      <div>
+                        <label class="simple-label">Jam Mulai</label>
+                        <input type="time" class="simple-input" id="sch-time-start2" value="12:00" oninput="syncSchedulerDuration()">
+                      </div>
+                      <div>
+                        <label class="simple-label">Jam Selesai</label>
+                        <input type="time" class="simple-input" id="sch-time-end2" value="16:00" oninput="syncSchedulerDuration()">
+                      </div>
+                    </div>
+
+                    <div class="form-group-row" style="margin-bottom: 0;">
+                      <label class="simple-label">Keterangan / Uraian Tugas Laporan</label>
+                      <textarea class="simple-textarea" id="sch-keterangan-input2" rows="2">Pengurusan administrasi cuti dan berkas pegawai.</textarea>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Total Durasi Gabungan -->
+                <div class="sch-duration-pill" id="sch-dur-display">
+                  ⏱️ Total Durasi per Eksekusi: 480 Menit (8.0 Jam)
+                </div>
+
+                <div style="display: flex; gap: 10px; margin-top: 6px; flex-wrap: wrap;">
+                  <button type="submit" class="btn-primary-action" id="btn-save-scheduler" style="flex: 2; min-width: 200px;">
+                    💾 Simpan Pengaturan Jadwal
+                  </button>
+                  <button type="button" class="btn-test-scheduler" id="btn-test-scheduler" onclick="testRunSchedulerNow()" style="flex: 1; min-width: 160px;">
+                    🧪 Uji Jalankan Sekarang
+                  </button>
+                </div>
+              </div>
+            </form>
+
+            <!-- Riwayat Eksekusi Scheduler -->
+            <div style="margin-top: 24px; border-top: 1.5px solid #ece5fc; padding-top: 18px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                <h4 style="margin: 0; font-size: 14px; color: #2b2353; font-weight: 800;">📋 Riwayat Log Eksekusi Scheduler</h4>
+                <span style="font-size: 11px; color: #6e6498;">Diperbarui background worker</span>
+              </div>
+              <div id="sch-logs-container" style="display: flex; flex-direction: column; gap: 8px;">
+                <div style="font-size: 12px; color: #6e6498; font-style: italic; padding: 10px 0;">Belum ada log eksekusi scheduler.</div>
+              </div>
+            </div>
+          </div>
+          <div class="bottom-spacer-safe"></div>
+        </div>
+      </section>
+
+      <section class="ms-tab-pane" id="view-chats" style="display: none !important;">
+          <div class="ms-chat-stream" id="chat-stream">
+            <!-- Messages rendered dynamically -->
+          </div>
+
+          <!-- Telegram Reply Keyboard / Action Buttons -->
+          <div class="ms-chips-bar tg-reply-keyboard" id="tg-reply-keyboard">
+            <button class="tg-key-btn highlight" style="background:#f0fdf4;color:#15803d;border-color:#bbf7d0;" onclick="openPromptTemplateModal()">💡 Contoh Prompt</button>
+            <button class="tg-key-btn highlight" style="background:#f3e8ff;color:#7c3aed;border-color:#d8b4fe;" onclick="handleActionChip('ai')">✨ AI Assistant</button>
+            <button class="tg-key-btn highlight" onclick="handleActionChip('template')">📋 Master Template</button>
+            <button class="tg-key-btn highlight" onclick="handleActionChip('buat_template')">➕ Buat Template 1</button>
+            <button class="tg-key-btn highlight" onclick="openManualInputModal()">✍️ Menu Input Mandiri</button>
+            <button class="tg-key-btn urgent" onclick="handleActionChip('autofill')">⚡ Auto-Fill H-7</button>
+            <button class="tg-key-btn" onclick="handleActionChip('progres')">📊 Cek Progres</button>
+            <button class="tg-key-btn" onclick="handleActionChip('riwayat')">📜 Riwayat</button>
+          </div>
+
+          <!-- Telegram Bottom Input Bar with [≡ Menu] Button -->
+          <div class="ms-chat-input-bar tg-input-bar">
+            <!-- Telegram Bot Floating Command Menu Sheet (Anchored directly above input bar) -->
+            <div class="tg-command-menu-popup" id="tg-command-menu" style="display: none;" onclick="event.stopPropagation()">
+              <div class="tg-cmd-menu-header">
+                <div class="tg-cmd-header-title">
+                  <span class="tg-cmd-bot-icon">🤖</span>
+                  <span>Menu Pilihan Perintah Bot</span>
+                </div>
+                <button class="tg-cmd-close-btn" onclick="toggleBotMenu(false, event)" title="Tutup">&times;</button>
+              </div>
+              <div class="tg-cmd-list" id="tg-cmd-list">
+                <div class="tg-cmd-item" style="border-left: 3px solid #10b981;" onclick="openPromptTemplateModal(); toggleBotMenu(false);">
+                  <div class="tg-cmd-top">
+                    <span class="tg-cmd-name">/prompt</span>
+                    <span class="tg-cmd-badge" style="background: #10b981; color: white;">💡 Contoh</span>
+                  </div>
+                  <div class="tg-cmd-desc">💡 Template prompt konsultasi e-Kinerja siap pakai</div>
+                </div>
+                <div class="tg-cmd-item" style="border-left: 3px solid #8b5cf6;" onclick="executeBotCommand('/ai')">
+                  <div class="tg-cmd-top">
+                    <span class="tg-cmd-name">/ai</span>
+                    <span class="tg-cmd-badge" style="background: linear-gradient(135deg, #8b5cf6, #3b82f6); color: white;">✨ AI Agent</span>
+                  </div>
+                  <div class="tg-cmd-desc">✨ Status & Pengaturan AI (Gemini / Groq / OpenAI)</div>
+                </div>
+                <div class="tg-cmd-item" onclick="executeBotCommand('/template')">
+                  <div class="tg-cmd-top">
+                    <span class="tg-cmd-name">/template</span>
+                    <span class="tg-cmd-badge">Katalog</span>
+                  </div>
+                  <div class="tg-cmd-desc">📋 Lihat & pilih Master Template kegiatan</div>
+                </div>
+                <div class="tg-cmd-item" onclick="executeBotCommand('/buat_template')">
+                  <div class="tg-cmd-top">
+                    <span class="tg-cmd-name">/buat_template</span>
+                    <span class="tg-cmd-badge">Baru</span>
+                  </div>
+                  <div class="tg-cmd-desc">➕ Buat & simpan Master Template kustom</div>
+                </div>
+                <div class="tg-cmd-item" onclick="executeBotCommand('/isi_manual')">
+                  <div class="tg-cmd-top">
+                    <span class="tg-cmd-name">/isi_manual</span>
+                    <span class="tg-cmd-badge">Direct</span>
+                  </div>
+                  <div class="tg-cmd-desc">✍️ Formulir pelaporan mandiri langsung</div>
+                </div>
+                <div class="tg-cmd-item" onclick="executeBotCommand('/autofill')">
+                  <div class="tg-cmd-top">
+                    <span class="tg-cmd-name">/autofill</span>
+                    <span class="tg-cmd-badge urgent">Instan</span>
+                  </div>
+                  <div class="tg-cmd-desc">⚡ 1-Click Auto-Fill hari kerja kosong (H-7)</div>
+                </div>
+                <div class="tg-cmd-item" onclick="executeBotCommand('/progres')">
+                  <div class="tg-cmd-top">
+                    <span class="tg-cmd-name">/progres</span>
+                    <span class="tg-cmd-badge">Statistik</span>
+                  </div>
+                  <div class="tg-cmd-desc">📊 Cek total menit bulanan & status target</div>
+                </div>
+                <div class="tg-cmd-item" onclick="executeBotCommand('/hari_bolong')">
+                  <div class="tg-cmd-top">
+                    <span class="tg-cmd-name">/hari_bolong</span>
+                    <span class="tg-cmd-badge">Cek H-7</span>
+                  </div>
+                  <div class="tg-cmd-desc">📅 Cek tanggal hari kerja yang belum diisi</div>
+                </div>
+                <div class="tg-cmd-item" onclick="executeBotCommand('/kalender')">
+                  <div class="tg-cmd-top">
+                    <span class="tg-cmd-name">/kalender</span>
+                    <span class="tg-cmd-badge">Visual</span>
+                  </div>
+                  <div class="tg-cmd-desc">🗓️ Buka kalender e-Kinerja lengkap</div>
+                </div>
+                <div class="tg-cmd-item" onclick="executeBotCommand('/riwayat')">
+                  <div class="tg-cmd-top">
+                    <span class="tg-cmd-name">/riwayat</span>
+                    <span class="tg-cmd-badge">Log</span>
+                  </div>
+                  <div class="tg-cmd-desc">📜 Rekap riwayat laporan terakhir</div>
+                </div>
+                <div class="tg-cmd-item" onclick="executeBotCommand('/help')">
+                  <div class="tg-cmd-top">
+                    <span class="tg-cmd-name">/help</span>
+                    <span class="tg-cmd-badge">Info</span>
+                  </div>
+                  <div class="tg-cmd-desc">ℹ️ Panduan cara penggunaan bot</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Telegram Bot Menu Button -->
+            <button class="tg-menu-btn" id="btn-tg-menu" onclick="toggleBotMenu(null, event)" title="Buka Menu Bot (Ketik /)">
+              <span class="tg-menu-hamburger">≡</span>
+              <span class="tg-menu-text">Menu</span>
+            </button>
+
+            <!-- Attachment Button (Paperclip) -->
+            <button class="tg-attach-btn" title="Toggle Keyboard Perintah" onclick="toggleReplyKeyboard()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path>
+              </svg>
+            </button>
+
+            <!-- Input Box -->
+            <div class="tg-input-wrap">
+              <input type="text" class="tg-text-input" id="chat-text-input" placeholder="Tulis pesan atau ketik /..." autocomplete="off">
+              <button class="tg-emoji-btn" title="Emoji" onclick="insertEmoji('👍')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M8 14s1.5 2 4 2 4-2 4-2"></path><line x1="9" y1="9" x2="9.01" y2="9"></line><line x1="15" y1="9" x2="15.01" y2="9"></line></svg>
+              </button>
+            </div>
+
+            <!-- Telegram Send Button (Blue Circle with Paper Airplane) -->
+            <button class="tg-send-btn" id="btn-send-thumbs" onclick="onSendOrThumbs()" title="Kirim Pesan">
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+              </svg>
+            </button>
+          </div>
+        </section>
+
+      <!-- ================= VIEW 5: REVIEW PERILAKU & VALIDASI KINERJA ================= -->
+      <section class="ms-tab-pane" id="view-review">
+        <div class="stage-content-wrap">
+          <!-- Clean View Top Navigation Bar -->
+          <div class="view-header-bar">
+            <button type="button" class="view-back-pill" onclick="switchViewTab('home')" title="Kembali ke Beranda">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
+              <span>Beranda</span>
+            </button>
+            <div class="view-header-title">
+              <span>⭐ Review & Validasi e-Kinerja</span>
+            </div>
+            <button type="button" class="view-refresh-pill" onclick="fetchReviewData()" title="Segarkan Data Review">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M23 4v6h-6"></path><path d="M1 20v-6h6"></path><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+              <span>Refresh</span>
+            </button>
+          </div>
+
+          <!-- Hero Status Card -->
+          <div class="review-hero-card">
+            <div class="review-hero-left">
+              <div class="review-status-pill" id="review-status-pill">
+                <span class="review-status-dot"></span>
+                <span id="review-status-label">Review Perilaku: 3/3</span>
+              </div>
+              <h3 class="review-hero-title">Evaluasi Perilaku Kerja ASN</h3>
+              <p class="review-hero-desc" id="review-notice-desc">
+                Fitur Review Perilaku di portal SiPENDEKAR dibuka berkala oleh BKPSDM setiap awal bulan (tanggal 1) untuk penilaian Core Values ASN BerAKHLAK.
+              </p>
+              <div class="review-action-btns">
+                <a href="https://sipendekar.tangerangkab.go.id/2026/review-perilaku" target="_blank" rel="noopener noreferrer" class="btn-portal-review">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                  <span>Buka Portal Resmi Review</span>
+                </a>
+                <button type="button" class="btn-refresh-review" onclick="fetchReviewData()">
+                  <span>Cek Sinkronisasi</span>
+                </button>
+              </div>
+            </div>
+            <div class="review-hero-badge-box">
+              <div class="review-badge-circle" id="review-badge-circle">3/3</div>
+              <div class="review-badge-caption">Status Kuota Review</div>
+            </div>
+          </div>
+
+          <!-- Matriks Penilai 360 -->
+          <div class="review-section-wrap">
+            <div class="review-section-header">
+              <h4 class="review-section-title">Matriks Penilai 360° (Core Values BerAKHLAK)</h4>
+              <span class="review-section-hint">Struktur penilai yang terdaftar resmi di BKPSDM</span>
+            </div>
+
+            <div class="review-matrix-grid">
+              <!-- Atasan Langsung -->
+              <div class="matrix-card">
+                <div class="matrix-card-header">
+                  <span class="matrix-role-badge atas">Atasan Langsung</span>
+                  <span class="matrix-count" id="count-atas">0</span>
+                </div>
+                <div class="matrix-list" id="list-review-atas">
+                  <div class="matrix-empty">Belum ada data atasan penilai</div>
+                </div>
+              </div>
+
+              <!-- Rekan Sejawat -->
+              <div class="matrix-card">
+                <div class="matrix-card-header">
+                  <span class="matrix-role-badge rekan">Rekan Sejawat (Peer)</span>
+                  <span class="matrix-count" id="count-rekan">0</span>
+                </div>
+                <div class="matrix-list" id="list-review-rekan">
+                  <div class="matrix-empty">Belum ada rekan penilai terdaftar</div>
+                </div>
+              </div>
+
+              <!-- Bawahan -->
+              <div class="matrix-card">
+                <div class="matrix-card-header">
+                  <span class="matrix-role-badge bawah">Bawahan</span>
+                  <span class="matrix-count" id="count-bawah">0</span>
+                </div>
+                <div class="matrix-list" id="list-review-bawah">
+                  <div class="matrix-empty">Tidak ada bawahan langsung</div>
+                </div>
+              </div>
+
+              <!-- Wajib Anda Review -->
+              <div class="matrix-card highlight">
+                <div class="matrix-card-header">
+                  <span class="matrix-role-badge target">Wajib Anda Review</span>
+                  <span class="matrix-count" id="count-mereview">0</span>
+                </div>
+                <div class="matrix-list" id="list-review-mereview">
+                  <div class="matrix-empty">Tidak ada antrean review yang tertunda</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Verifikasi Bawahan -->
+          <div class="review-subordinates-card" id="review-subordinates-card" style="display: none; margin-top: 24px; background: #fff; padding: 20px; border-radius: 18px; border: 1px solid rgba(142,116,230,0.15);">
+            <div class="review-section-header">
+              <h4 class="review-section-title">Verifikasi & Validasi Laporan Aktivitas Bawahan</h4>
+              <span class="review-section-hint" id="subordinates-hint">Daftar staf bawahan untuk validasi kinerja</span>
+            </div>
+            <div id="subordinates-list" class="subordinates-list" style="margin-top: 12px;"></div>
+          </div>
+
+          <div class="bottom-spacer-safe" style="height: 120px;"></div>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- Floating Bottom Navigation Pill Bar (Matching Reference Image) -->
+    <nav class="bottom-nav-floating">
+      <!-- Tab 1: Beranda -->
+      <button class="nav-tab-item ms-conv-item top-nav-tab active" data-tab="home" onclick="switchViewTab('home')" title="Beranda">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+          <polyline points="9 22 9 12 15 12 15 22"></polyline>
+        </svg>
+        <span>Beranda</span>
+      </button>
+
+      <!-- Tab 2: Kalender -->
+      <button class="nav-tab-item ms-conv-item top-nav-tab" data-tab="calendar" onclick="switchViewTab('calendar')" title="Kalender">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+          <line x1="16" y1="2" x2="16" y2="6"></line>
+          <line x1="8" y1="2" x2="8" y2="6"></line>
+          <line x1="3" y1="10" x2="21" y2="10"></line>
+        </svg>
+        <span>Kalender</span>
+      </button>
+
+      <!-- Center Floating 3D Action Button (FAB) -->
+      <div class="nav-center-wrapper">
+        <button class="nav-center-action-btn" onclick="switchViewTab('simple-input'); resetSimpleInputForm();" title="Input Cepat">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Tab 3: Histori -->
+      <button class="nav-tab-item ms-conv-item top-nav-tab" data-tab="history" onclick="switchViewTab('history')" title="Histori">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+          <polyline points="14 2 14 8 20 8"></polyline>
+          <line x1="16" y1="13" x2="8" y2="13"></line>
+          <line x1="16" y1="17" x2="8" y2="17"></line>
+          <polyline points="10 9 9 9 8 9"></polyline>
+        </svg>
+        <span>Histori</span>
+      </button>
+
+      <!-- Tab 4: Scheduler -->
+      <button class="nav-tab-item ms-conv-item top-nav-tab" data-tab="scheduler" onclick="switchViewTab('scheduler')" title="Jadwal Auto">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <polyline points="12 6 12 12 16 14"></polyline>
+        </svg>
+        <span>Auto</span>
+      </button>
+    </nav>
+  </div>
+
+  <!-- ==============================================================================
+       3. MODALS AND NOTIFICATION SYSTEM
+       ============================================================================== -->
+<div class="modal-backdrop-light" id="modal-calendar-full">
+  <div class="modal-window-card" style="max-width: 650px; width: 95%;">
+    <div class="modal-title-row">
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+        <h3 style="margin: 0; font-size: 16px;">Kalender & Progres e-Kinerja</h3>
+      </div>
+      <button class="modal-close-icon" onclick="closeModal('modal-calendar-full')">&times;</button>
+    </div>
+
+    <!-- Metrics Cards Grid inside modal -->
+    <div class="ms-stats-grid" style="margin-bottom: 14px;">
+      <div class="ms-stat-card highlight">
+        <div class="circle-progress-box">
+          <svg class="circle-svg" viewBox="0 0 60 60">
+            <circle class="circle-track" cx="30" cy="30" r="25"/>
+            <circle class="circle-fill" id="circle-progress-bar" cx="30" cy="30" r="25"/>
+          </svg>
+          <div class="circle-text" id="stat-pct-val">0%</div>
+        </div>
+        <div class="stat-info">
+          <div class="stat-label">Capaian Bulan Ini</div>
+          <div class="stat-val" id="stat-hari-kerja">0 Hari Dilaporkan</div>
+          <div class="stat-desc">Keterisian hari kerja</div>
+        </div>
+      </div>
+
+      <div class="ms-stat-card">
+        <div class="stat-info">
+          <div class="stat-label">Total Menit Bulan Ini</div>
+          <div class="stat-val" id="stat-bulan-menit">0 / 7.920 m</div>
+          <div class="stat-desc" id="stat-bulan-badge">MEMERIKSA...</div>
+        </div>
+      </div>
+
+      <div class="ms-stat-card">
+        <div class="stat-info">
+          <div class="stat-label">Hari Kerja Kosong</div>
+          <div class="stat-val" id="stat-h7-count">0 Hari</div>
+          <div class="stat-desc">Belum dilaporkan</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Urgent Alert Banner -->
+    <div class="ms-urgent-card" id="ms-urgent-card" style="display: none; margin-bottom: 12px;">
+      <div class="urgent-left">
+        <div class="urgent-icon-pill">⚠️</div>
+        <div>
+          <h4 style="margin: 0; font-size: 12px; font-weight: 700;">Perhatian: Ada Hari Kerja yang Belum Dilaporkan</h4>
+          <p id="urgent-text-desc" style="margin: 2px 0 0; font-size: 11px;">Memeriksa hari kerja yang kosong...</p>
+        </div>
+      </div>
+      <button class="btn-autofill-bright" onclick="closeModal('modal-calendar'); switchViewTab('simple-input');">
+        ✍️ Buka Form Input
+      </button>
+    </div>
+
+    <!-- Kalender Bulanan Interaktif -->
+    <div class="ms-calendar-box">
+      <div class="cal-header-bar">
+        <div class="cal-title-wrap">
+          <h3 class="cal-month-name" id="cal-month-name">Oktober 2026</h3>
+        </div>
+        <button class="ms-refresh-pill" onclick="fetchProgress()">🔄 Refresh Kalender</button>
+      </div>
+
+      <div class="cal-grid cal-days-head">
+        <div class="cal-head-day">Sen</div>
+        <div class="cal-head-day">Sel</div>
+        <div class="cal-head-day">Rab</div>
+        <div class="cal-head-day">Kam</div>
+        <div class="cal-head-day">Jum</div>
+        <div class="cal-head-day weekend">Sab</div>
+        <div class="cal-head-day weekend">Min</div>
+      </div>
+
+      <div class="cal-grid" id="cal-days-grid">
+        <!-- Rendered via JS -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==============================================================================
+     MODAL: CARI KATALOG KEGIATAN LENGKAP (2.123 KEGIATAN)
+     ============================================================================== -->
+<div class="modal-backdrop-light" id="modal-catalog-picker">
+  <div class="modal-window-card" style="max-width: 650px; width: 95%;">
+    <div class="modal-title-row">
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        <h3 style="margin: 0; font-size: 16px;">Katalog Kegiatan SiPENDEKAR</h3>
+      </div>
+      <button class="modal-close-icon" onclick="closeModal('modal-catalog-picker')">&times;</button>
+    </div>
+
+    <div style="margin-bottom: 10px;">
+      <input type="text" class="field-input" id="catalog-search-query" placeholder="Ketik kata kunci (misal: pelatihan, rapat, surat, komputer, apel)..." oninput="onCatalogSearchInput()">
+    </div>
+
+    <div class="category-chip-row" style="margin-bottom: 12px;">
+      <button class="cat-pill active" data-cat="ALL" onclick="filterCategory('ALL', this)">Semua</button>
+      <button class="cat-pill" data-cat="UTAMA" onclick="filterCategory('UTAMA', this)">Tugas Utama</button>
+      <button class="cat-pill" data-cat="PELAYANAN" onclick="filterCategory('PELAYANAN', this)">Pelayanan & Teknis</button>
+      <button class="cat-pill" data-cat="TI" onclick="filterCategory('TI', this)">TI & Komputer</button>
+      <button class="cat-pill" data-cat="ADMINISTRASI" onclick="filterCategory('ADMINISTRASI', this)">Administrasi</button>
+    </div>
+
+    <div class="catalog-cards-container" id="catalog-cards-container" style="max-height: 380px; overflow-y: auto;">
+      <!-- Rendered via JS -->
+    </div>
+  </div>
+</div>
+
+<!-- ==============================================================================
+     MODAL: RINCIAN HARI & AKTIVITAS TANGGAL
+     ============================================================================== -->
+<div class="modal-backdrop-light" id="modal-day-detail">
+  <div class="modal-window-card">
+    <div class="modal-title-row">
+      <h3 id="modal-day-title">Detail Aktivitas Tanggal</h3>
+      <button class="modal-close-icon" onclick="closeModal('modal-day-detail')">&times;</button>
+    </div>
+    <div id="modal-day-content">
+      <!-- Loaded dynamically via JS -->
+    </div>
+  </div>
+</div>
+
+<!-- ==============================================================================
+     MODAL: MENU INPUT LAPORAN MANDIRI (MENU INPUT SENDIRI)
+     ============================================================================== -->
+<div class="modal-backdrop-light" id="modal-manual-input">
+  <div class="modal-window-card" style="max-width: 600px; width: 95%;">
+    <div class="modal-title-row">
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <span style="font-size: 20px;">📝</span>
+        <div>
+          <h3 style="margin: 0; font-size: 16px;">Formulir Input Kegiatan e-Kinerja</h3>
+          <span style="font-size: 12px; color: var(--text-muted);">Menu input mandiri resmi SiPENDEKAR</span>
+        </div>
+      </div>
+      <button class="modal-close-icon" onclick="closeModal('modal-manual-input')">&times;</button>
+    </div>
+
+    <form id="form-manual-input" onsubmit="submitDedicatedManualActivity(event)">
+      <div class="tmpl-form-grid" style="padding: 10px 0;">
+        <div class="tmpl-form-row two-col">
+          <div>
+            <label class="tmpl-input-label">Tanggal Pelaksanaan</label>
+            <input type="date" class="tmpl-form-input" id="ded-input-tanggal" required>
+          </div>
+          <div>
+            <label class="tmpl-input-label">Volume Output</label>
+            <input type="number" class="tmpl-form-input" id="ded-input-volume" min="1" max="99" value="1" oninput="onDedicatedVolumeOrTimeChange('volume')" required>
+          </div>
+        </div>
+
+        <div class="tmpl-form-row">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+            <label class="tmpl-input-label" style="margin-bottom:0;">Pilih Kegiatan (2.123 Katalog)</label>
+            <button type="button" class="tmpl-btn-ghost" style="font-size: 11.5px; padding: 2px 8px; color: #2563eb;" onclick="openDedicatedCatalogPicker()">
+              🔍 Cari dari 2.123 Katalog
+            </button>
+          </div>
+          <select class="tmpl-form-select" id="ded-input-activity" onchange="onDedicatedActivitySelect(this)" required>
+            <!-- Populated via JS -->
+          </select>
+          <input type="hidden" id="ded-input-kode" value="UTAMA00463">
+          <input type="hidden" id="ded-input-nama" value="Mengikuti pelatihan/sosialisasi/pendidikan">
+          <input type="hidden" id="ded-input-waktu" value="300">
+          <input type="hidden" id="ded-input-satuan" value="Kegiatan">
+        </div>
+
+        <div class="tmpl-form-row">
+          <label class="tmpl-input-label">Sasaran Kinerja Pegawai (SKP Portal)</label>
+          <select class="tmpl-form-select" id="ded-input-skp">
+            <!-- Populated via JS -->
+          </select>
+        </div>
+
+        <div class="tmpl-form-row">
+          <label class="tmpl-input-label">Jam Pelaksanaan (Otomatis Sinkron dengan Volume & Standar Waktu)</label>
+          <div class="tmpl-time-range-wrap">
+            <div class="tmpl-time-box">
+              <span class="time-lbl">Mulai</span>
+              <div class="tmpl-time-inputs-wrap">
+                <input type="number" class="tmpl-time-input" id="ded-input-jm" min="0" max="23" value="07" oninput="onDedicatedVolumeOrTimeChange('time')">
+                <span class="tmpl-time-colon">:</span>
+                <input type="number" class="tmpl-time-input" id="ded-input-mm" min="0" max="59" value="30" oninput="onDedicatedVolumeOrTimeChange('time')">
+              </div>
+            </div>
+            <div class="tmpl-time-arrow">➡️</div>
+            <div class="tmpl-time-box">
+              <span class="time-lbl">Selesai</span>
+              <div class="tmpl-time-inputs-wrap">
+                <input type="number" class="tmpl-time-input" id="ded-input-js" min="0" max="23" value="12" oninput="onDedicatedVolumeOrTimeChange('time')">
+                <span class="tmpl-time-colon">:</span>
+                <input type="number" class="tmpl-time-input" id="ded-input-ms" min="0" max="59" value="30" oninput="onDedicatedVolumeOrTimeChange('time')">
+              </div>
+            </div>
+          </div>
+          <div class="tmpl-dur-preview" id="ded-input-dur-preview" style="margin-top: 8px;">
+            Durasi: Menghitung...
+          </div>
+        </div>
+
+        <div class="tmpl-form-row">
+          <label class="tmpl-input-label">Keterangan / Uraian Tugas</label>
+          <textarea class="tmpl-form-textarea" id="ded-input-keterangan" rows="3" placeholder="Uraian ringkas pelaksanaan tugas formal..." required></textarea>
+        </div>
+
+        <div style="display: flex; gap: 8px; justify-content: flex-end; margin-top: 14px;">
+          <button type="button" class="tmpl-btn-secondary" onclick="closeModal('modal-manual-input')">
+            Batal
+          </button>
+          <button type="submit" class="tmpl-btn-submit" id="btn-submit-dedicated-form" style="background: linear-gradient(135deg, #0284c7, #2563eb); margin-top: 0;">
+            🚀 1-Klik Kirim Laporan ke SiPENDEKAR
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ==============================================================================
+     MODAL: KONFIGURASI AI ASISTEN (GEMINI / GROQ / OPENAI)
+     ============================================================================== -->
+<div class="modal-backdrop-light" id="modal-ai-settings">
+  <div class="modal-window-card" style="max-width: 520px; width: 95%;">
+    <div class="modal-title-row">
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <span style="font-size: 22px;">✨</span>
+        <div>
+          <h3 style="margin: 0; font-size: 16px; color: var(--text-main);">Pengaturan AI Assistant</h3>
+          <span style="font-size: 12px; color: var(--text-muted);">Pilih provider & pasang API Key kecerdasan buatan</span>
+        </div>
+      </div>
+      <button class="modal-close-icon" onclick="closeModal('modal-ai-settings')">&times;</button>
+    </div>
+
+    <form id="form-ai-config" onsubmit="saveAiConfigForm(event)">
+      <div style="margin-bottom: 14px;">
+        <label class="tmpl-input-label">Pilih Provider Kecerdasan Buatan (AI)</label>
+        <select class="tmpl-form-select" id="ai-provider-select" onchange="onAiProviderChange(this.value)">
+          <option value="crown" selected>👑 Crown AI (Bansos AI Agentic - GLM-5.3 / DeepSeek-V4)</option>
+          <option value="gemini">Google Gemini (Gratis & Cerdas)</option>
+          <option value="groq">Groq Cloud (Ultra Cepat - Llama 3.3 70B)</option>
+          <option value="openai">OpenAI (GPT-4o-mini / GPT-4o)</option>
+          <option value="local">Smart Local NLP Engine (Offline, Bawaan Tanpa API Key)</option>
+        </select>
+      </div>
+
+      <div id="ai-apikey-group" style="margin-bottom: 14px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+          <label class="tmpl-input-label" style="margin-bottom: 0;">API Key</label>
+          <a href="https://aistudio.google.com/app/apikey" target="_blank" id="ai-key-help-link" style="font-size: 11.5px; color: var(--ms-blue); text-decoration: none; font-weight: 600;">
+            🔑 Ambil API Key Gratis di Google AI Studio &rarr;
+          </a>
+        </div>
+        <div style="position: relative;">
+          <input type="password" class="tmpl-form-input" id="ai-api-key-input" placeholder="Tempel API Key di sini (misal: AIzaSy...)" style="padding-right: 40px;">
+          <button type="button" onclick="toggleAiKeyVisibility()" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; font-size: 16px; color: var(--text-muted);" title="Lihat / Sembunyikan">
+            👁️
+          </button>
+        </div>
+        <span style="font-size: 11px; color: var(--text-muted); display: block; margin-top: 4px;" id="ai-key-status-text">
+          Status: Belum ada API key tersimpan.
+        </span>
+      </div>
+
+      <div style="margin-bottom: 16px;">
+        <label class="tmpl-input-label">Pilihan Model AI</label>
+        <select class="tmpl-form-select" id="ai-model-select">
+          <option value="gemini-3.5-flash" selected>gemini-3.5-flash (1.048.576 Tokens - Rekomendasi Utama)</option>
+          <option value="gemini-3.1-flash-lite">gemini-3.1-flash-lite (1.048.576 Tokens - Ringan & Cepat)</option>
+          <option value="gemini-flash-latest">gemini-flash-latest (1.048.576 Tokens - Versi Terbaru)</option>
+        </select>
+      </div>
+
+      <div id="ai-test-result-box" style="display: none; padding: 10px 12px; border-radius: 8px; margin-bottom: 14px; font-size: 12.5px;"></div>
+
+      <div style="display: flex; gap: 8px; justify-content: flex-end; margin-top: 10px;">
+        <button type="button" class="tmpl-btn-secondary" id="btn-test-ai-key" onclick="testAiConnection()" style="background:#f3f4f6; color:#374151;">
+          🧪 Uji Koneksi
+        </button>
+        <button type="submit" class="tmpl-btn-submit" id="btn-save-ai-key" style="background: linear-gradient(135deg, #7c3aed, #2563eb);">
+          💾 Simpan Konfigurasi
+        </button>
+      </div>
+    </form>
+<!-- ==============================================================================
+     MODAL: TEMPLATE PROMPT CHAT SIPENDEKAR (SIAP KLIK & PAKAI)
+     ============================================================================== -->
+<div class="modal-backdrop-light" id="modal-prompt-templates">
+  <div class="modal-window-card" style="max-width: 580px; width: 95%; max-height: 88vh; padding: 20px;">
+    <div class="modal-title-row" style="margin-bottom: 12px;">
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <span style="font-size: 24px;">💡</span>
+        <div>
+          <h3 style="margin: 0; font-size: 16px; color: var(--text-main);">Template Prompt Konsultasi e-Kinerja</h3>
+          <span style="font-size: 12px; color: var(--text-muted);">Pilih contoh kalimat untuk langsung dimasukkan ke chat</span>
+        </div>
+      </div>
+      <button class="modal-close-icon" onclick="closeModal('modal-prompt-templates')">&times;</button>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 4px;">
+
+      <!-- Kartu 1: Multi-Kegiatan 2 Sesi (Pagi & Siang) -->
+      <div class="tmpl-prompt-card" style="border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px; background: #f8fafc;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+          <strong style="font-size: 13px; color: #0f172a;">👥 1. Dua Kegiatan dalam Sehari (Pagi & Siang)</strong>
+          <span class="tag-badge" style="background:#e0f2fe;color:#0284c7;font-size:10px;">Rekomendasi</span>
+        </div>
+        <p style="font-size: 12px; color: #334155; margin: 0 0 8px; line-height: 1.4; font-style: italic; background:#fff; padding:8px 10px; border-radius:8px; border:1px dashed #cbd5e1;">
+          "kalo saya mengerjakan rekap data dari jam 8 sampe jam 12 terus saya melakukan pekerjaan administrasi cuti dari jam 12-16 gmna bikin inputan nya enaknya"
+        </p>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <span style="font-size: 11px; color: #64748b;">✨ AI membagi 2 kegiatan presisi tanpa bentrok jam.</span>
+          <button type="button" class="tmpl-btn-submit" style="padding: 6px 12px; font-size: 11.5px; background: #0284c7; margin-top:0;" onclick="usePromptTemplate('kalo saya mengerjakan rekap data dari jam 8 sampe jam 12 terus saya melakukan pekerjaan administrasi cuti dari jam 12-16 gmna bikin inputan nya enaknya')">
+            ✍️ Gunakan Prompt
+          </button>
+        </div>
+      </div>
+
+      <!-- Kartu 2: Satu Kegiatan Seharian (07:30 - 17:30 / 600 Menit) -->
+      <div class="tmpl-prompt-card" style="border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px; background: #f8fafc;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+          <strong style="font-size: 13px; color: #0f172a;">🚗 2. Dinas Luar / Verifikasi Lapangan (Seharian Penuh)</strong>
+          <span class="tag-badge" style="background:#ecfdf5;color:#059669;font-size:10px;">10 Jam / 600m</span>
+        </div>
+        <p style="font-size: 12px; color: #334155; margin: 0 0 8px; line-height: 1.4; font-style: italic; background:#fff; padding:8px 10px; border-radius:8px; border:1px dashed #cbd5e1;">
+          "Hari ini dari jam 07.30 sampai 17.30 saya dinas luar verifikasi perizinan lapangan, tolong carikan kegiatan katalog yang cocok dan sinkronkan jamnya."
+        </p>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <span style="font-size: 11px; color: #64748b;">✨ Menuntaskan 600 menit penuh dalam 1 hari kerja.</span>
+          <button type="button" class="tmpl-btn-submit" style="padding: 6px 12px; font-size: 11.5px; background: #0284c7; margin-top:0;" onclick="usePromptTemplate('Hari ini dari jam 07.30 sampai 17.30 saya dinas luar verifikasi perizinan lapangan, tolong carikan kegiatan katalog yang cocok dan sinkronkan jamnya.')">
+            ✍️ Gunakan Prompt
+          </button>
+        </div>
+      </div>
+
+      <!-- Kartu 3: Pelatihan / Workshop / Bimtek ASN -->
+      <div class="tmpl-prompt-card" style="border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px; background: #f8fafc;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+          <strong style="font-size: 13px; color: #0f172a;">🎓 3. Mengikuti Pelatihan / Sosialisasi / Bimtek</strong>
+          <span class="tag-badge" style="background:#fef3c7;color:#d97706;font-size:10px;">Diklat</span>
+        </div>
+        <p style="font-size: 12px; color: #334155; margin: 0 0 8px; line-height: 1.4; font-style: italic; background:#fff; padding:8px 10px; border-radius:8px; border:1px dashed #cbd5e1;">
+          "Kemarin saya mengikuti workshop peningkatan kompetensi ASN dari jam 8 pagi sampai jam 3 sore, bagaimana inputannya?"
+        </p>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <span style="font-size: 11px; color: #64748b;">✨ AI mencocokkan kode UTAMA00463 atau diklat resmi.</span>
+          <button type="button" class="tmpl-btn-submit" style="padding: 6px 12px; font-size: 11.5px; background: #0284c7; margin-top:0;" onclick="usePromptTemplate('Kemarin saya mengikuti workshop peningkatan kompetensi ASN dari jam 8 pagi sampai jam 3 sore, bagaimana inputannya?')">
+            ✍️ Gunakan Prompt
+          </button>
+        </div>
+      </div>
+
+      <!-- Kartu 4: Pelayanan Administrasi & Persuratan TU -->
+      <div class="tmpl-prompt-card" style="border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px; background: #f8fafc;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+          <strong style="font-size: 13px; color: #0f172a;">📁 4. Administrasi Persuratan, Arsip, & Pelayanan</strong>
+          <span class="tag-badge" style="background:#f3e8ff;color:#7c3aed;font-size:10px;">TU & Umum</span>
+        </div>
+        <p style="font-size: 12px; color: #334155; margin: 0 0 8px; line-height: 1.4; font-style: italic; background:#fff; padding:8px 10px; border-radius:8px; border:1px dashed #cbd5e1;">
+          "Tadi saya mengelola surat masuk dan mengarsipkan berkas dari jam 08.00 sampai 12.00, tolong rekomendasikan kegiatan dan volumenya."
+        </p>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <span style="font-size: 11px; color: #64748b;">✨ AI menghitung volume berkas sinkron menit.</span>
+          <button type="button" class="tmpl-btn-submit" style="padding: 6px 12px; font-size: 11.5px; background: #0284c7; margin-top:0;" onclick="usePromptTemplate('Tadi saya mengelola surat masuk dan mengarsipkan berkas dari jam 08.00 sampai 12.00, tolong rekomendasikan kegiatan dan volumenya.')">
+            ✍️ Gunakan Prompt
+          </button>
+        </div>
+      </div>
+
+      <!-- Kartu 5: Minta Rekomendasi Master Template Rutin 600 Menit -->
+      <div class="tmpl-prompt-card" style="border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px; background: #f8fafc;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+          <strong style="font-size: 13px; color: #0f172a;">📋 5. Rekomendasi Bikin Master Template Rutin 600 Menit</strong>
+          <span class="tag-badge" style="background:#fee2e2;color:#dc2626;font-size:10px;">1-Click</span>
+        </div>
+        <p style="font-size: 12px; color: #334155; margin: 0 0 8px; line-height: 1.4; font-style: italic; background:#fff; padding:8px 10px; border-radius:8px; border:1px dashed #cbd5e1;">
+          "Tolong buatkan rekomendasi Master Template 600 menit yang cocok untuk staf administrasi agar cepat mencapai target 7.920 menit sebulan."
+        </p>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <span style="font-size: 11px; color: #64748b;">✨ AI menyiapkan tombol simpan Master Template.</span>
+          <button type="button" class="tmpl-btn-submit" style="padding: 6px 12px; font-size: 11.5px; background: #0284c7; margin-top:0;" onclick="usePromptTemplate('Tolong buatkan rekomendasi Master Template 600 menit yang cocok untuk staf administrasi agar cepat mencapai target 7.920 menit sebulan.')">
+            ✍️ Gunakan Prompt
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Toast Notification -->
+<div class="ms-toast" id="ms-toast">
+  <span id="ms-toast-text">Notifikasi</span>
+</div>
+
+<script src="/static/js/messenger_app.js?v=20261030_clay_v19"></script>
+</body>
+</html>
+

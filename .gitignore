@@ -1,0 +1,21 @@
+# Security & Secrets
+.secret_key
+.db_seed
+.env
+*.env
+
+# SQLite Database
+*.db
+*.db-*
+calo_data.db
+
+# Python & Caches
+__pycache__/
+*.py[cod]
+*.class
+*.log
+
+# Scratch and Temp files
+*.bak
+scratch/
+.system_generated/
