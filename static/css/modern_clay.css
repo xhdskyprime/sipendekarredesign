@@ -3140,3 +3140,11 @@ body {
   cursor: default !important;
   pointer-events: none !important;
 }
+
+#modal-review-form {
+  z-index: 1200 !important;
+}
+
+#modal-review-form.active {
+  display: flex !important;
+}

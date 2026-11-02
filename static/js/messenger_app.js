@@ -1410,6 +1410,7 @@ function openManualInputModal(draft = null) {
   const modal = document.getElementById('modal-manual-input');
   if (!modal) return;
   modal.classList.add('active');
+  modal.style.display = 'flex';
 
   const tglEl = document.getElementById('ded-input-tanggal');
   const volEl = document.getElementById('ded-input-volume');
@@ -2442,6 +2443,7 @@ async function openDayDetailModal(dateStr, isTerisi, status) {
   const content = document.getElementById('modal-day-content');
   content.innerHTML = `<div style="text-align:center; padding: 20px; color: var(--text-muted);">Memeriksa rincian dari portal...</div>`;
   modal.classList.add('active');
+  modal.style.display = 'flex';
 
   try {
     const res = await fetch(`/api/days/${dateStr}`).then(r => r.json());
@@ -2728,6 +2730,7 @@ function openDedicatedCatalogPicker(target = 'simple') {
   const modal = document.getElementById('modal-catalog-picker');
   if (modal) {
     modal.classList.add('active');
+  modal.style.display = 'flex';
     searchCatalog("", "ALL");
   }
 }
@@ -3069,7 +3072,10 @@ async function fetchHistory() {
 
 function closeModal(id) {
   const modal = document.getElementById(id);
-  if (modal) modal.classList.remove('active');
+  if (modal) {
+    modal.classList.remove('active');
+    modal.style.display = 'none';
+  }
 }
 
 function showToast(message, type = 'info') {
@@ -3140,6 +3146,7 @@ async function openAiSettingsModal() {
   }
 
   modal.classList.add('active');
+  modal.style.display = 'flex';
 }
 
 function onAiProviderChange(provider) {
@@ -5061,6 +5068,12 @@ function renderReviewTargetCards(reviewees) {
   if (!container) return;
 
   const arr = Array.isArray(reviewees) ? reviewees : [];
+  window._revieweesMap = window._revieweesMap || {};
+  arr.forEach(it => {
+    if (it && (it.nip || it.id)) {
+      window._revieweesMap[it.nip || it.id] = it;
+    }
+  });
   const pendingCount = arr.filter(it => !it.is_done && !it.status?.toLowerCase().includes('sudah')).length;
 
   if (badgeEl) {
@@ -5123,7 +5136,7 @@ function renderReviewTargetCards(reviewees) {
             </span>
             <span class="review-progress-note">${item.jumlah || 0}/${item.harus || 7} Core Values</span>
           </div>
-          <button type="button" class="btn-review-action ${isDone ? 'done' : 'primary'}" onclick="openReviewModal('${escapeHtml(item.nip)}', '${escapeHtml(item.nama)}', '${escapeHtml(item.peran || 'Pegawai')}', '${escapeHtml(item.jabatan || '')}', '${escapeHtml(item.foto || '')}')">
+          <button type="button" class="btn-review-action ${isDone ? 'done' : 'primary'}" onclick="openReviewModal('${item.nip || item.id}')">
             <span>${isDone ? '👁️ Lihat Penilaian' : '⭐ Nilai Perilaku'}</span>
           </button>
         </div>
@@ -5136,6 +5149,12 @@ function renderMatrixList(listId, countId, items, emptyText, isTarget = false) {
   const listEl = document.getElementById(listId);
   const countEl = document.getElementById(countId);
   const arr = Array.isArray(items) ? items : [];
+  window._revieweesMap = window._revieweesMap || {};
+  arr.forEach(it => {
+    if (it && (it.nip || it.id)) {
+      window._revieweesMap[it.nip || it.id] = it;
+    }
+  });
 
   if (countEl) countEl.textContent = arr.length;
   if (!listEl) return;
@@ -5163,7 +5182,7 @@ function renderMatrixList(listId, countId, items, emptyText, isTarget = false) {
           <span class="matrix-user-status ${isDone ? 'done' : 'pending'}" style="font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 8px;">
             ${isDone ? '✅ Selesai' : '⏳ Belum'}
           </span>
-          <button type="button" class="btn-review-mini" style="background: ${isDone ? '#f0fdf4' : '#eff6ff'}; color: ${isDone ? '#16a34a' : '#2563eb'}; border: 1px solid ${isDone ? '#bbf7d0' : '#bfdbfe'}; padding: 4px 10px; border-radius: 6px; font-size: 10.5px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 3px;" onclick="openReviewModal('${escapeHtml(nip)}', '${escapeHtml(name)}', '${escapeHtml(item.peran || (isTarget ? 'Wajib Review' : 'Pegawai'))}', '${escapeHtml(jabatan)}', '${escapeHtml(item.foto || '')}')">
+          <button type="button" class="btn-review-mini" style="background: ${isDone ? '#f0fdf4' : '#eff6ff'}; color: ${isDone ? '#16a34a' : '#2563eb'}; border: 1px solid ${isDone ? '#bbf7d0' : '#bfdbfe'}; padding: 4px 10px; border-radius: 6px; font-size: 10.5px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 3px;" onclick="openReviewModal('${nip}')">
             ${isDone ? 'Lihat' : 'Nilai'}
           </button>
         </div>
@@ -5179,9 +5198,15 @@ window.fetchReviewData = fetchReviewData;
 // ==============================================================================
 let currentReviewSession = null;
 
-async function openReviewModal(targetNip, targetNama, targetPeran, targetJabatan, targetFoto) {
+async function openReviewModal(targetNip, maybeNama, maybePeran, maybeJabatan, maybeFoto) {
   const modal = document.getElementById('modal-review-form');
   if (!modal) return;
+
+  const cached = (window._revieweesMap && window._revieweesMap[targetNip]) || {};
+  const targetNama = maybeNama || cached.nama || cached.peg_nama || cached.name || 'Pegawai ASN';
+  const targetPeran = maybePeran || cached.peran || 'Pegawai';
+  const targetJabatan = maybeJabatan || cached.jabatan || 'Pemerintah Kabupaten Tangerang';
+  const targetFoto = maybeFoto || cached.foto || '';
 
   // Setup modal header info
   const nameEl = document.getElementById('review-modal-name');
@@ -5194,10 +5219,10 @@ async function openReviewModal(targetNip, targetNama, targetPeran, targetJabatan
   const noteEl = document.getElementById('review-footer-note');
   const submitBtn = document.getElementById('btn-submit-review-final');
 
-  if (nameEl) nameEl.textContent = targetNama || 'Pegawai ASN';
-  if (metaEl) metaEl.textContent = `NIP: ${targetNip || '-'} • ${targetJabatan || 'Pemerintah Kabupaten Tangerang'}`;
+  if (nameEl) nameEl.textContent = targetNama;
+  if (metaEl) metaEl.textContent = `NIP: ${targetNip || '-'} • ${targetJabatan}`;
   if (roleEl) {
-    roleEl.textContent = targetPeran || 'Pegawai';
+    roleEl.textContent = targetPeran;
     const roleLower = (targetPeran || '').toLowerCase();
     roleEl.className = 'matrix-role-badge ' + (roleLower.includes('bawah') ? 'atas' : (roleLower.includes('rekan') ? 'rekan' : (roleLower.includes('pribadi') ? 'pribadi' : 'bawah')));
   }
@@ -5237,6 +5262,7 @@ async function openReviewModal(targetNip, targetNama, targetPeran, targetJabatan
   if (listEl) listEl.innerHTML = '';
 
   modal.classList.add('active');
+  modal.style.display = 'flex';
 
   // Fetch 7 questions from backend API
   try {
