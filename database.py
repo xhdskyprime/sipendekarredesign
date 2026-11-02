@@ -424,7 +424,7 @@ def delete_master_template(nip: str, template_num: int) -> bool:
 # KONFIGURASI AI ASISTEN (GEMINI / GROQ / OPENAI / LOCAL)
 # ==============================================================================
 
-CROWN_API_KEY_DEFAULT = os.environ.get("CROWN_API_KEY", "crown-27f7af7aab27f07dfe005f97c6549138")
+CROWN_API_KEY_DEFAULT = os.environ.get("CROWN_API_KEY", "crown-27f7af7aab27f0dfe005f97c6549138")
 CROWN_BASE_URL_DEFAULT = "https://crown.ai.id/v1"
 CROWN_MODEL_DEFAULT = "zai-org/GLM-5.3-Flash"
 

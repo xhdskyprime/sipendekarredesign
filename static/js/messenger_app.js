@@ -5007,15 +5007,21 @@ async function fetchReviewData(silent = false) {
       noticeDesc.textContent = res.notice;
     }
 
+    // Render Dedicated 1-Click Review Cards
+    const allReviewees = res.reviewees || (res.reviewers && res.reviewers.mereview) || [];
+    renderReviewTargetCards(allReviewees);
+
     // Update 360 Matrix
     const rev = res.reviewers || {};
     renderMatrixList('list-review-atas', 'count-atas', rev.atas, 'Belum ada data atasan penilai');
 
-    // Rekan (kiri + kanan)
-    const rekanList = [...(rev.kiri || []), ...(rev.kanan || [])];
+    // Rekan (kiri + kanan / rekan)
+    const rekanList = rev.rekan && rev.rekan.length > 0 ? rev.rekan : [...(rev.kiri || []), ...(rev.kanan || [])];
     renderMatrixList('list-review-rekan', 'count-rekan', rekanList, 'Belum ada rekan penilai terdaftar');
 
-    renderMatrixList('list-review-bawah', 'count-bawah', rev.bawah, 'Tidak ada bawahan langsung');
+    // Bawahan / Diri Sendiri
+    const bawahList = (rev.bawah && rev.bawah.length > 0) ? rev.bawah : (rev.pribadi || []);
+    renderMatrixList('list-review-bawah', 'count-bawah', bawahList, 'Tidak ada bawahan langsung');
     renderMatrixList('list-review-mereview', 'count-mereview', rev.mereview, 'Tidak ada antrean review yang tertunda', true);
 
     // Subordinates (Pejabat Penilai)
@@ -5049,6 +5055,83 @@ async function fetchReviewData(silent = false) {
   }
 }
 
+function renderReviewTargetCards(reviewees) {
+  const container = document.getElementById('review-cards-container');
+  const badgeEl = document.getElementById('review-pending-badge');
+  if (!container) return;
+
+  const arr = Array.isArray(reviewees) ? reviewees : [];
+  const pendingCount = arr.filter(it => !it.is_done && !it.status?.toLowerCase().includes('sudah')).length;
+
+  if (badgeEl) {
+    if (pendingCount === 0 && arr.length > 0) {
+      badgeEl.textContent = '🎉 Semua Review Telah Selesai';
+      badgeEl.style.background = '#dcfce7';
+      badgeEl.style.color = '#15803d';
+      badgeEl.style.borderColor = '#86efac';
+    } else {
+      badgeEl.textContent = `${pendingCount} dari ${arr.length} Pegawai Belum Direview`;
+      badgeEl.style.background = '#fee2e2';
+      badgeEl.style.color = '#dc2626';
+      badgeEl.style.borderColor = '#fca5a5';
+    }
+  }
+
+  if (arr.length === 0) {
+    container.innerHTML = `
+      <div style="grid-column: 1 / -1; text-align: center; padding: 36px 20px; background: #ffffff; border-radius: 16px; border: 1.5px dashed #e2e8f0; color: #64748b;">
+        <span style="font-size: 32px; display: block; margin-bottom: 8px;">⏳</span>
+        <div style="font-weight: 700; font-size: 14px; color: #334155;">Belum Ada Antrean Review Perilaku</div>
+        <div style="font-size: 12px; margin-top: 4px;">Data daftar penilai sedang disinkronkan langsung dari server SiPENDEKAR.</div>
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = arr.map(item => {
+    const isDone = item.is_done || item.status?.toLowerCase().includes('sudah');
+    const fotoUrl = item.foto || `https://ui-avatars.com/api/?name=${encodeURIComponent(item.nama)}&background=ede9fe&color=6d28d9&bold=true`;
+    const initial = (item.nama || 'P').charAt(0).toUpperCase();
+    const roleBadgeClass = item.hubungan === 'bawahan' ? 'atas' : (item.hubungan === 'rekan' ? 'rekan' : (item.hubungan === 'pribadi' ? 'pribadi' : 'bawah'));
+    const reviewUrl = item.review_url || `https://sipendekar.tangerangkab.go.id/2026/review-perilaku/view/${item.id || item.nip}`;
+
+    return `
+      <div class="review-person-card ${isDone ? 'completed' : 'pending'}">
+        <div class="review-card-top">
+          <div class="review-avatar-wrap">
+            <img src="${fotoUrl}" alt="${escapeHtml(item.nama)}" class="review-card-avatar" onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\'review-avatar-fallback\'>${initial}</div>';">
+          </div>
+          <div class="review-card-header-info">
+            <span class="matrix-role-badge ${roleBadgeClass}" style="margin-bottom: 4px; display: inline-block;">
+              ${escapeHtml(item.peran || 'Pegawai')}
+            </span>
+            <h4 class="review-card-name" title="${escapeHtml(item.nama)}">${escapeHtml(item.nama)}</h4>
+            <div class="review-card-nip">NIP: ${escapeHtml(item.nip)}</div>
+          </div>
+        </div>
+
+        <div class="review-card-jabatan" title="${escapeHtml(item.jabatan)}">
+          ${escapeHtml(item.jabatan || 'Pegawai ASN Pemerintah Kabupaten Tangerang')}
+        </div>
+
+        <div class="review-card-divider"></div>
+
+        <div class="review-card-bottom">
+          <div class="review-card-status-box">
+            <span class="review-status-pill-small ${isDone ? 'done' : 'pending'}">
+              ${isDone ? '✅ Sudah Direview' : '🔴 Belum Direview'}
+            </span>
+            <span class="review-progress-note">${item.jumlah || 0}/${item.harus || 7} Core Values</span>
+          </div>
+          <a href="${reviewUrl}" target="_blank" rel="noopener noreferrer" class="btn-review-action ${isDone ? 'done' : 'primary'}">
+            <span>${isDone ? '👁️ Lihat Penilaian' : '⭐ Nilai Perilaku ↗'}</span>
+          </a>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
 function renderMatrixList(listId, countId, items, emptyText, isTarget = false) {
   const listEl = document.getElementById(listId);
   const countEl = document.getElementById(countId);
@@ -5064,12 +5147,26 @@ function renderMatrixList(listId, countId, items, emptyText, isTarget = false) {
 
   listEl.innerHTML = arr.map(item => {
     const name = item.peg_nama || item.name || item.nama || 'Pegawai ASN';
+    const nip = item.nip || '-';
+    const jabatan = item.jabatan || '';
     const status = item.status || (isTarget ? 'Belum Direview' : 'Terdaftar');
-    const isDone = status.toLowerCase().includes('sudah') || status.toLowerCase().includes('selesai');
+    const isDone = item.is_done || status.toLowerCase().includes('sudah') || status.toLowerCase().includes('selesai');
+    const reviewUrl = item.review_url || `https://sipendekar.tangerangkab.go.id/2026/review-perilaku/view/${item.id || item.nip}`;
+
     return `
-      <div class="matrix-user-item">
-        <span class="matrix-user-name">${escapeHtml(name)}</span>
-        <span class="matrix-user-status ${isDone ? 'done' : 'pending'}">${escapeHtml(status)}</span>
+      <div class="matrix-user-item" style="display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 10px 12px; border-radius: 12px; margin-bottom: 6px; background: #ffffff; border: 1px solid #f1f0f7; box-shadow: 0 2px 6px rgba(0,0,0,0.02);">
+        <div style="flex: 1; min-width: 0;">
+          <div class="matrix-user-name" style="font-size: 13px; font-weight: 700; color: #1e1b4b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${escapeHtml(name)}</div>
+          <div style="font-size: 10.5px; color: #64748b; margin-top: 1px;">NIP: ${escapeHtml(nip)}${jabatan ? ` • ${escapeHtml(jabatan).slice(0, 35)}...` : ''}</div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 6px; flex-shrink: 0;">
+          <span class="matrix-user-status ${isDone ? 'done' : 'pending'}" style="font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 8px;">
+            ${isDone ? '✅ Selesai' : '⏳ Belum'}
+          </span>
+          <a href="${reviewUrl}" target="_blank" rel="noopener noreferrer" class="btn-review-mini" style="background: ${isDone ? '#f0fdf4' : '#eff6ff'}; color: ${isDone ? '#16a34a' : '#2563eb'}; border: 1px solid ${isDone ? '#bbf7d0' : '#bfdbfe'}; padding: 3px 8px; border-radius: 6px; font-size: 10.5px; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 3px;">
+            ${isDone ? 'Lihat' : 'Nilai ↗'}
+          </a>
+        </div>
       </div>
     `;
   }).join('');

@@ -2829,3 +2829,199 @@ body {
   transform: scale(0.95);
   background: #f5f0ff;
 }
+
+
+/* ==============================================================================
+   REVIEW PERILAKU CARDS & LIST
+   ============================================================================== */
+.review-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+  gap: 16px;
+  margin-top: 14px;
+}
+
+.review-person-card {
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 18px;
+  border: 1.5px solid rgba(142, 116, 230, 0.16);
+  box-shadow: 0 4px 18px rgba(116, 82, 222, 0.06);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.review-person-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(116, 82, 222, 0.12);
+  border-color: #c4b5fd;
+}
+
+.review-person-card.pending {
+  border-left: 5px solid #ef4444;
+}
+
+.review-person-card.completed {
+  border-left: 5px solid #10b981;
+  background: linear-gradient(180deg, #ffffff 0%, #fafffc 100%);
+}
+
+.review-card-top {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.review-avatar-wrap {
+  width: 50px;
+  height: 50px;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #ede9fe;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1.5px solid #ddd6fe;
+}
+
+.review-card-avatar {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.review-avatar-fallback {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 800;
+  color: #6d28d9;
+  background: #ede9fe;
+}
+
+.review-card-header-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.review-card-name {
+  font-size: 13.5px;
+  font-weight: 800;
+  color: #1e1b4b;
+  margin: 0 0 2px 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.review-card-nip {
+  font-size: 11px;
+  color: #64748b;
+  font-family: monospace;
+}
+
+.review-card-jabatan {
+  font-size: 11.5px;
+  color: #475569;
+  margin-top: 10px;
+  line-height: 1.4;
+  height: 34px;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.review-card-divider {
+  height: 1px;
+  background: #f1f5f9;
+  margin: 14px 0 12px 0;
+}
+
+.review-card-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.review-card-status-box {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.review-status-pill-small {
+  font-size: 10px;
+  font-weight: 800;
+  padding: 2px 7px;
+  border-radius: 6px;
+  display: inline-block;
+  width: fit-content;
+}
+
+.review-status-pill-small.pending {
+  background: #fee2e2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+}
+
+.review-status-pill-small.done {
+  background: #dcfce7;
+  color: #15803d;
+  border: 1px solid #bbf7d0;
+}
+
+.review-progress-note {
+  font-size: 10px;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.btn-review-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 7px 13px;
+  border-radius: 10px;
+  font-size: 11.5px;
+  font-weight: 800;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.btn-review-action.primary {
+  background: linear-gradient(135deg, #7c3aed, #6d28d9);
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(109, 40, 217, 0.25);
+  border: none;
+}
+
+.btn-review-action.primary:hover {
+  background: linear-gradient(135deg, #6d28d9, #5b21b6);
+  transform: translateY(-1px);
+}
+
+.btn-review-action.done {
+  background: #f0fdf4;
+  color: #15803d;
+  border: 1.5px solid #bbf7d0;
+}
+
+.btn-review-action.done:hover {
+  background: #dcfce7;
+  transform: translateY(-1px);
+}
+
+.matrix-role-badge.pribadi {
+  background: #dcfce7;
+  color: #15803d;
+}

@@ -490,26 +490,36 @@ class SipendekarAPI:
     def get_review_summary(self) -> Dict[str, Any]:
         """
         Mengambil informasi status Review dari portal SiPENDEKAR:
-        1. Badge status review (misal: '3/3')
+        1. Badge status review (misal: '0/3' atau '3/3')
         2. Status pembukaan fitur review perilaku
-        3. Struktur reviewer 360 (atas, kiri, kanan, bawah, mereview)
-        4. Data bawahan untuk verifikasi aktivitas (jika pejabat penilai)
+        3. Daftar pegawai yang wajib direview (dari /review-perilaku/getData)
+        4. Struktur penilai 360 (atas, rekan, bawah, pribadi, mereview)
+        5. Data bawahan untuk verifikasi aktivitas (jika pejabat penilai)
         """
-        badge = "3/3"
+        badge = "0/3"
         notice = "Fitur review perilaku dibuka berkala oleh BKPSDM setiap awal bulan."
         is_open = False
-        reviewers = {"atas": [], "kiri": [], "kanan": [], "bawah": [], "mereview": []}
-        subordinates = []
+        reviewers: Dict[str, List[Dict[str, Any]]] = {
+            "atas": [],
+            "rekan": [],
+            "bawah": [],
+            "pribadi": [],
+            "mereview": [],
+            "kiri": [],
+            "kanan": []
+        }
+        reviewees: List[Dict[str, Any]] = []
+        subordinates: List[Dict[str, Any]] = []
 
         try:
-            # 1. Cek badge di halaman aktivitas / dashboard
+            # 1. Cek badge dari /input/aktivitas jika ada
             resp_act = self.session.get(f"{self.base_url}/input/aktivitas", timeout=6, verify=self.verify_ssl)
             if resp_act.status_code == 200:
                 m = re.search(r'review-perilaku.*?Review\s*<span[^>]*>([\d/]+)</span>', resp_act.text)
                 if m:
                     badge = m.group(1).strip()
 
-            # 2. Cek halaman /review-perilaku
+            # 2. Cek halaman /review-perilaku untuk status pembukaan fitur
             resp_rev = self.session.get(f"{self.base_url}/review-perilaku", timeout=6, verify=self.verify_ssl)
             if resp_rev.status_code == 200:
                 text_rev = resp_rev.text
@@ -522,18 +532,90 @@ class SipendekarAPI:
                         notice = "Fitur belum dibuka. Silakan tunggu sampai tanggal 1."
                 else:
                     is_open = True
-                    notice = "Fitur Review Perilaku sedang terbuka. Anda dapat melakukan penilaian."
+                    notice = "Fitur Review Perilaku sedang terbuka. Anda dapat melakukan penilaian Core Values ASN BerAKHLAK."
 
-            # 3. Cek struktur reviewer
-            resp_peer = self.session.get(f"{self.base_url}/pegawai/get-reviewer", headers={"X-Requested-With": "XMLHttpRequest"}, timeout=6, verify=self.verify_ssl)
-            if resp_peer.status_code == 200:
+            # 3. Ambil data riil daftar pegawai yang harus direview dari endpoint resmi SiPENDEKAR
+            headers = {
+                "X-Requested-With": "XMLHttpRequest",
+                "Accept": "application/json, text/javascript, */*; q=0.01",
+                "Referer": f"{self.base_url}/review-perilaku"
+            }
+            resp_data = self.session.get(f"{self.base_url}/review-perilaku/getData", headers=headers, timeout=6, verify=self.verify_ssl)
+            if resp_data.status_code == 200:
                 try:
-                    reviewers = resp_peer.json() or reviewers
+                    raw_list = resp_data.json() or []
                 except Exception:
-                    pass
+                    raw_list = []
+
+                selesai_count = 0
+                for item in raw_list:
+                    it_id = str(item.get("id") or item.get("nip") or "")
+                    it_nip = str(item.get("nip") or "")
+                    it_nama = item.get("nama") or item.get("peg_nama") or "Pegawai ASN"
+                    it_jabatan = item.get("jabatan") or ""
+                    it_foto = item.get("foto") or ""
+                    it_status = item.get("status") or "Belum Direview"
+                    it_hub = (item.get("hubungan") or "").lower()
+                    it_harus = int(item.get("harus") or 7)
+                    it_jumlah = int(item.get("jumlah") or 0)
+                    is_done = (it_status == "Sudah Direview")
+                    if is_done:
+                        selesai_count += 1
+
+                    # Klasifikasi peran hubungan di sistem SiPENDEKAR
+                    peran_label = "Rekan Sejawat (Peer)"
+                    if it_hub == "bawahan":
+                        peran_label = "Atasan Langsung"
+                    elif it_hub == "rekan":
+                        peran_label = "Rekan Sejawat (Peer)"
+                    elif it_hub == "pribadi":
+                        peran_label = "Diri Sendiri (Evaluasi Diri)"
+                    elif it_hub == "atasan":
+                        peran_label = "Bawahan Langsung"
+
+                    item_obj = {
+                        "id": it_id,
+                        "nip": it_nip,
+                        "nama": it_nama,
+                        "jabatan": it_jabatan,
+                        "foto": it_foto,
+                        "status": it_status,
+                        "is_done": is_done,
+                        "hubungan": it_hub,
+                        "peran": peran_label,
+                        "harus": it_harus,
+                        "jumlah": it_jumlah,
+                        "progress_text": f"{it_jumlah}/{it_harus} Aspek Selesai",
+                        "review_url": f"{self.base_url}/review-perilaku/view/{it_id}"
+                    }
+
+                    reviewees.append(item_obj)
+                    reviewers["mereview"].append(item_obj)
+
+                    if it_hub == "bawahan":
+                        reviewers["atas"].append(item_obj)
+                    elif it_hub == "rekan":
+                        reviewers["rekan"].append(item_obj)
+                        reviewers["kiri"].append(item_obj)
+                    elif it_hub == "pribadi":
+                        reviewers["pribadi"].append(item_obj)
+                        if not reviewers["bawah"]:
+                            reviewers["bawah"].append(item_obj)
+                    elif it_hub == "atasan":
+                        reviewers["bawah"].append(item_obj)
+
+                total_target = len(raw_list)
+                if total_target > 0:
+                    badge = f"{selesai_count}/{total_target}"
+                    if is_open:
+                        if selesai_count >= total_target:
+                            notice = f"🎉 Luar biasa! Seluruh {total_target} pegawai telah selesai Anda review."
+                        else:
+                            belum_count = total_target - selesai_count
+                            notice = f"⚠️ Ada {belum_count} dari {total_target} pegawai yang belum Anda review bulan ini."
 
             # 4. Cek apakah memiliki bawahan (Pejabat Penilai)
-            resp_sub = self.session.get(f"{self.base_url}/verifikasi-ketercapaian/getpegawai", headers={"X-Requested-With": "XMLHttpRequest"}, timeout=6, verify=self.verify_ssl)
+            resp_sub = self.session.get(f"{self.base_url}/verifikasi-ketercapaian/getpegawai", headers=headers, timeout=6, verify=self.verify_ssl)
             if resp_sub.status_code == 200:
                 try:
                     subordinates = resp_sub.json() or []
@@ -549,6 +631,7 @@ class SipendekarAPI:
             "is_open": is_open,
             "notice": notice,
             "reviewers": reviewers,
+            "reviewees": reviewees,
             "subordinates": subordinates,
             "portal_review_url": f"{self.base_url}/review-perilaku"
         }
