@@ -635,3 +635,159 @@ class SipendekarAPI:
             "subordinates": subordinates,
             "portal_review_url": f"{self.base_url}/review-perilaku"
         }
+
+    def get_review_form(self, target_nip: str) -> Dict[str, Any]:
+        """
+        Mengambil formulir pertanyaan penilaian perilaku kerja untuk target_nip dari portal SiPENDEKAR:
+        /review-perilaku/view/<target_nip>
+        """
+        url = f"{self.base_url}/review-perilaku/view/{target_nip}"
+        resp = self.session.get(url, timeout=10, verify=self.verify_ssl)
+        if resp.status_code != 200:
+            return {"success": False, "error": f"Gagal memuat formulir review: HTTP {resp.status_code}"}
+
+        html_text = resp.text
+        soup = BeautifulSoup(html_text, 'html.parser')
+
+        # Ambil CSRF token dari halaman
+        csrf_token = None
+        token_inp = soup.find('input', {'name': '_token'})
+        if token_inp:
+            csrf_token = token_inp.get('value')
+        if not csrf_token:
+            m = re.search(r"_token\s*:\s*[\'\"]([^\'\"]+)[\'\"]", html_text)
+            if m:
+                csrf_token = m.group(1)
+
+        tables = soup.find_all('table')
+        if len(tables) < 2:
+            return {"success": False, "error": "Formulir penilaian tidak ditemukan pada portal SiPENDEKAR (mungkin sudah selesai dinilai)."}
+
+        t2 = tables[1]
+        questions = []
+        current_category = "BERAKHLAK"
+        current_q_num = None
+        current_q_text = ""
+
+        for tr in t2.find_all('tr'):
+            text = tr.get_text(' ', strip=True)
+            tds = tr.find_all('td')
+
+            if len(tds) <= 1 and any(cat in text.upper() for cat in ['PELAYANAN', 'AKUNTABEL', 'KOMPETEN', 'HARMONIS', 'LOYAL', 'ADAPTIF', 'KOLABORATIF']):
+                current_category = text.strip()
+                continue
+
+            m_q = re.match(r'^(\d+)\.\s*(.*)', text)
+            if m_q and len(tr.find_all('input', {'type': 'radio'})) == 0:
+                current_q_num = int(m_q.group(1))
+                current_q_text = m_q.group(2).strip()
+                continue
+
+            radios = tr.find_all('input', {'type': 'radio'})
+            if radios:
+                q_num = int(radios[0].get('name', current_q_num or len(questions) + 1))
+                q_id = str(radios[0].get('id'))
+                selected_val = None
+
+                for r in radios:
+                    val = str(r.get('value'))
+                    if r.has_attr('checked') or r.get('checked'):
+                        selected_val = val
+
+                scale_options = [
+                    {"value": "0", "label": "Tidak Pernah", "desc": "Sama sekali tidak pernah"},
+                    {"value": "1", "label": "Jarang", "desc": "Sekali sebulan atau kurang"},
+                    {"value": "2", "label": "Kadang-kadang", "desc": "Beberapa kali sebulan"},
+                    {"value": "3", "label": "Sering", "desc": "Seminggu sekali"},
+                    {"value": "4", "label": "Selalu", "desc": "Setiap hari"}
+                ]
+
+                questions.append({
+                    "number": q_num,
+                    "id": q_id,
+                    "category": current_category,
+                    "question": current_q_text,
+                    "selected_value": selected_val,
+                    "options": scale_options
+                })
+
+        is_submitted = ("Sudah Direview" in html_text) or (len(questions) > 0 and all(q["selected_value"] is not None for q in questions) and "disabled" in html_text)
+
+        return {
+            "success": True,
+            "csrf_token": csrf_token,
+            "target_nip": target_nip,
+            "is_submitted": is_submitted,
+            "questions": questions
+        }
+
+    def save_review_rating(self, target_nip: str, question_id: str, rating_val: str, reviewer_nip: Optional[str] = None, csrf_token: Optional[str] = None) -> Dict[str, Any]:
+        """
+        Menyimpan satu nilai aspek penilaian perilaku (auto-save draft) ke SiPENDEKAR:
+        POST /review-perilaku/proses-review
+        """
+        r_nip = reviewer_nip or self.user_nip or ""
+        url_view = f"{self.base_url}/review-perilaku/view/{target_nip}"
+        if not csrf_token:
+            r_view = self.session.get(url_view, timeout=6, verify=self.verify_ssl)
+            m = re.search(r"_token\s*:\s*[\'\"]([^\'\"]+)[\'\"]", r_view.text)
+            if m:
+                csrf_token = m.group(1)
+
+        post_url = f"{self.base_url}/review-perilaku/proses-review"
+        headers = {
+            "X-Requested-With": "XMLHttpRequest",
+            "Referer": url_view
+        }
+        payload = {
+            "_token": csrf_token or "",
+            "id": str(question_id),
+            "val": str(rating_val),
+            "nip": target_nip,
+            "nip_reviewer": r_nip
+        }
+        resp = self.session.post(post_url, data=payload, headers=headers, timeout=6, verify=self.verify_ssl)
+        if resp.status_code == 200:
+            return {"success": True, "message": "Draft penilaian berhasil disimpan di portal SiPENDEKAR."}
+        return {"success": False, "error": f"Gagal menyimpan ke SiPENDEKAR: HTTP {resp.status_code}"}
+
+    def submit_final_review(
+        self,
+        target_nip: str,
+        ratings: List[Union[str, int]],
+        question_ids: List[Union[str, int]],
+        reviewer_nip: Optional[str] = None,
+        csrf_token: Optional[str] = None
+    ) -> Dict[str, Any]:
+        """
+        Menyelesaikan dan mengirimkan penilaian final 7 Core Values ke SiPENDEKAR:
+        POST /review-perilaku/proses-submit
+        """
+        r_nip = reviewer_nip or self.user_nip or ""
+        url_view = f"{self.base_url}/review-perilaku/view/{target_nip}"
+        if not csrf_token:
+            r_view = self.session.get(url_view, timeout=6, verify=self.verify_ssl)
+            m = re.search(r"_token\s*:\s*[\'\"]([^\'\"]+)[\'\"]", r_view.text)
+            if m:
+                csrf_token = m.group(1)
+
+        headers = {
+            "X-Requested-With": "XMLHttpRequest",
+            "Referer": url_view
+        }
+
+        post_tuples = [
+            ("_token", csrf_token or ""),
+            ("nip", target_nip),
+            ("nip_reviewer", r_nip)
+        ]
+        for val in ratings:
+            post_tuples.append(("val[]", str(val)))
+        for qid in question_ids:
+            post_tuples.append(("id[]", str(qid)))
+
+        post_url = f"{self.base_url}/review-perilaku/proses-submit"
+        resp = self.session.post(post_url, data=post_tuples, headers=headers, timeout=8, verify=self.verify_ssl)
+        if resp.status_code == 200:
+            return {"success": True, "message": "Penilaian review perilaku berhasil diselesaikan dan dikirim ke SiPENDEKAR!"}
+        return {"success": False, "error": f"Gagal submit ke SiPENDEKAR: HTTP {resp.status_code}"}

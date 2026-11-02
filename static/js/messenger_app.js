@@ -5123,9 +5123,9 @@ function renderReviewTargetCards(reviewees) {
             </span>
             <span class="review-progress-note">${item.jumlah || 0}/${item.harus || 7} Core Values</span>
           </div>
-          <a href="${reviewUrl}" target="_blank" rel="noopener noreferrer" class="btn-review-action ${isDone ? 'done' : 'primary'}">
-            <span>${isDone ? '👁️ Lihat Penilaian' : '⭐ Nilai Perilaku ↗'}</span>
-          </a>
+          <button type="button" class="btn-review-action ${isDone ? 'done' : 'primary'}" onclick="openReviewModal('${escapeHtml(item.nip)}', '${escapeHtml(item.nama)}', '${escapeHtml(item.peran || 'Pegawai')}', '${escapeHtml(item.jabatan || '')}', '${escapeHtml(item.foto || '')}')">
+            <span>${isDone ? '👁️ Lihat Penilaian' : '⭐ Nilai Perilaku'}</span>
+          </button>
         </div>
       </div>
     `;
@@ -5163,12 +5163,350 @@ function renderMatrixList(listId, countId, items, emptyText, isTarget = false) {
           <span class="matrix-user-status ${isDone ? 'done' : 'pending'}" style="font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 8px;">
             ${isDone ? '✅ Selesai' : '⏳ Belum'}
           </span>
-          <a href="${reviewUrl}" target="_blank" rel="noopener noreferrer" class="btn-review-mini" style="background: ${isDone ? '#f0fdf4' : '#eff6ff'}; color: ${isDone ? '#16a34a' : '#2563eb'}; border: 1px solid ${isDone ? '#bbf7d0' : '#bfdbfe'}; padding: 3px 8px; border-radius: 6px; font-size: 10.5px; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 3px;">
-            ${isDone ? 'Lihat' : 'Nilai ↗'}
-          </a>
+          <button type="button" class="btn-review-mini" style="background: ${isDone ? '#f0fdf4' : '#eff6ff'}; color: ${isDone ? '#16a34a' : '#2563eb'}; border: 1px solid ${isDone ? '#bbf7d0' : '#bfdbfe'}; padding: 4px 10px; border-radius: 6px; font-size: 10.5px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 3px;" onclick="openReviewModal('${escapeHtml(nip)}', '${escapeHtml(name)}', '${escapeHtml(item.peran || (isTarget ? 'Wajib Review' : 'Pegawai'))}', '${escapeHtml(jabatan)}', '${escapeHtml(item.foto || '')}')">
+            ${isDone ? 'Lihat' : 'Nilai'}
+          </button>
         </div>
       </div>
     `;
   }).join('');
 }
 window.fetchReviewData = fetchReviewData;
+
+
+// ==============================================================================
+// 10. REVIEW PERILAKU INTERACTIVE FORM MODAL
+// ==============================================================================
+let currentReviewSession = null;
+
+async function openReviewModal(targetNip, targetNama, targetPeran, targetJabatan, targetFoto) {
+  const modal = document.getElementById('modal-review-form');
+  if (!modal) return;
+
+  // Setup modal header info
+  const nameEl = document.getElementById('review-modal-name');
+  const metaEl = document.getElementById('review-modal-meta');
+  const roleEl = document.getElementById('review-modal-role');
+  const avatarEl = document.getElementById('review-modal-avatar');
+  const statusBadge = document.getElementById('review-modal-status-badge');
+  const loadingEl = document.getElementById('review-questions-loading');
+  const listEl = document.getElementById('review-questions-list');
+  const noteEl = document.getElementById('review-footer-note');
+  const submitBtn = document.getElementById('btn-submit-review-final');
+
+  if (nameEl) nameEl.textContent = targetNama || 'Pegawai ASN';
+  if (metaEl) metaEl.textContent = `NIP: ${targetNip || '-'} • ${targetJabatan || 'Pemerintah Kabupaten Tangerang'}`;
+  if (roleEl) {
+    roleEl.textContent = targetPeran || 'Pegawai';
+    const roleLower = (targetPeran || '').toLowerCase();
+    roleEl.className = 'matrix-role-badge ' + (roleLower.includes('bawah') ? 'atas' : (roleLower.includes('rekan') ? 'rekan' : (roleLower.includes('pribadi') ? 'pribadi' : 'bawah')));
+  }
+  if (avatarEl) {
+    const avatarSrc = targetFoto || `https://ui-avatars.com/api/?name=${encodeURIComponent(targetNama || 'P')}&background=ede9fe&color=6d28d9&bold=true`;
+    avatarEl.src = avatarSrc;
+  }
+
+  // Reset modal state
+  currentReviewSession = {
+    targetNip,
+    targetNama,
+    targetPeran,
+    csrfToken: null,
+    isSubmitted: false,
+    questions: [],
+    ratings: {}
+  };
+
+  if (statusBadge) {
+    statusBadge.textContent = 'Memuat...';
+    statusBadge.style.background = '#f1f5f9';
+    statusBadge.style.color = '#64748b';
+  }
+  if (noteEl) noteEl.innerHTML = '💡 Setiap pilihan nilai otomatis tersimpan langsung ke server SiPENDEKAR.';
+  if (submitBtn) {
+    submitBtn.style.display = 'inline-flex';
+    submitBtn.disabled = true;
+    submitBtn.style.opacity = '0.6';
+    submitBtn.style.cursor = 'not-allowed';
+    submitBtn.innerHTML = '<span>🚀 Selesaikan & Kirim Review</span>';
+  }
+
+  updateReviewModalProgress();
+
+  if (loadingEl) loadingEl.style.display = 'block';
+  if (listEl) listEl.innerHTML = '';
+
+  modal.classList.add('active');
+
+  // Fetch 7 questions from backend API
+  try {
+    const resp = await fetch(`/api/review/form/${encodeURIComponent(targetNip)}`);
+    const data = await resp.json();
+
+    if (!data.success) {
+      if (loadingEl) loadingEl.style.display = 'none';
+      if (listEl) {
+        listEl.innerHTML = `
+          <div style="text-align: center; padding: 30px 16px; color: #dc2626; background: #fef2f2; border-radius: 14px; border: 1px solid #fecaca;">
+            <div style="font-weight: 700; font-size: 14px; margin-bottom: 4px;">Gagal Memuat Formulir Review</div>
+            <div style="font-size: 12px; color: #64748b;">${escapeHtml(data.error || 'Terjadi kesalahan saat memuat form.')}</div>
+          </div>
+        `;
+      }
+      return;
+    }
+
+    currentReviewSession.csrfToken = data.csrf_token;
+    currentReviewSession.isSubmitted = Boolean(data.is_submitted);
+    currentReviewSession.questions = data.questions || [];
+
+    // Prepopulate existing ratings
+    currentReviewSession.questions.forEach(q => {
+      if (q.selected_value !== null && q.selected_value !== undefined && q.selected_value !== '') {
+        currentReviewSession.ratings[q.id] = String(q.selected_value);
+      }
+    });
+
+    if (loadingEl) loadingEl.style.display = 'none';
+
+    renderReviewQuestions(currentReviewSession);
+    updateReviewModalProgress();
+
+  } catch (err) {
+    if (loadingEl) loadingEl.style.display = 'none';
+    if (listEl) {
+      listEl.innerHTML = `
+        <div style="text-align: center; padding: 30px 16px; color: #dc2626; background: #fef2f2; border-radius: 14px; border: 1px solid #fecaca;">
+          <div style="font-weight: 700; font-size: 14px;">Terjadi Kesalahan Jaringan</div>
+          <div style="font-size: 12px; color: #64748b; margin-top: 4px;">${escapeHtml(err.message)}</div>
+        </div>
+      `;
+    }
+  }
+}
+
+function renderReviewQuestions(session) {
+  const listEl = document.getElementById('review-questions-list');
+  const statusBadge = document.getElementById('review-modal-status-badge');
+  const noteEl = document.getElementById('review-footer-note');
+  const submitBtn = document.getElementById('btn-submit-review-final');
+  if (!listEl) return;
+
+  const isLocked = session.isSubmitted;
+
+  if (statusBadge) {
+    if (isLocked) {
+      statusBadge.textContent = '✅ Sudah Direview (Final)';
+      statusBadge.style.background = '#dcfce7';
+      statusBadge.style.color = '#15803d';
+    } else {
+      statusBadge.textContent = '📝 Siap Dinilai';
+      statusBadge.style.background = '#e0f2fe';
+      statusBadge.style.color = '#0369a1';
+    }
+  }
+
+  if (isLocked) {
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.style.opacity = '0.7';
+      submitBtn.style.cursor = 'default';
+      submitBtn.style.background = '#10b981';
+      submitBtn.innerHTML = '<span>✅ Penilaian Final Telah Terkirim</span>';
+    }
+    if (noteEl) {
+      noteEl.innerHTML = '🔒 Penilaian ini telah difinalisasi di portal SiPENDEKAR dan tidak dapat diubah lagi.';
+    }
+  }
+
+  listEl.innerHTML = session.questions.map(q => {
+    const curVal = session.ratings[q.id];
+    const isAnswered = curVal !== undefined && curVal !== null && curVal !== '';
+
+    const optionsHtml = (q.options || []).map(opt => {
+      const isSelected = String(curVal) === String(opt.value);
+      return `
+        <button type="button" 
+          class="rating-pill-btn ${isSelected ? 'active' : ''} ${isLocked ? 'locked' : ''}" 
+          id="btn-pill-${q.number}-${opt.value}"
+          data-qnum="${q.number}" 
+          data-qid="${q.id}" 
+          data-val="${opt.value}"
+          title="${escapeHtml(opt.desc || opt.label)}"
+          onclick="selectRatingPill(${q.number}, '${q.id}', '${opt.value}')">
+          <div class="rating-pill-num">${opt.value}</div>
+          <div class="rating-pill-label">${escapeHtml(opt.label)}</div>
+        </button>
+      `;
+    }).join('');
+
+    return `
+      <div class="review-q-card ${isAnswered ? 'answered' : ''}" id="review-q-card-${q.number}">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+          <span class="review-q-category">${escapeHtml(q.category || 'CORE VALUES ASN')}</span>
+          <span style="font-size: 11px; font-weight: 700; color: #64748b;">Aspek ${q.number} dari 7</span>
+        </div>
+        <div class="review-q-text">${q.number}. ${escapeHtml(q.question)}</div>
+        <div class="review-rating-pills">
+          ${optionsHtml}
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+async function selectRatingPill(qNum, qId, val) {
+  if (!currentReviewSession || currentReviewSession.isSubmitted) return;
+
+  currentReviewSession.ratings[qId] = String(val);
+
+  // Update visual selection inside this question
+  const cardEl = document.getElementById(`review-q-card-${qNum}`);
+  if (cardEl) {
+    cardEl.classList.add('answered');
+    const pills = cardEl.querySelectorAll('.rating-pill-btn');
+    pills.forEach(p => {
+      if (p.getAttribute('data-val') === String(val)) {
+        p.classList.add('active');
+      } else {
+        p.classList.remove('active');
+      }
+    });
+  }
+
+  updateReviewModalProgress();
+
+  // Auto-save to SiPENDEKAR
+  const indicator = document.getElementById('review-modal-autosave-indicator');
+  if (indicator) {
+    indicator.innerHTML = '<span style="display:inline-block;width:7px;height:7px;background:#f59e0b;border-radius:50%;animation:spin 1s infinite;"></span><span>Menyimpan...</span>';
+    indicator.style.color = '#d97706';
+  }
+
+  try {
+    const res = await fetch('/api/review/save-rating', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        target_nip: currentReviewSession.targetNip,
+        question_id: qId,
+        rating_val: String(val),
+        csrf_token: currentReviewSession.csrfToken
+      })
+    });
+    const result = await res.json();
+    if (result.success) {
+      if (indicator) {
+        indicator.innerHTML = '<span style="display:inline-block;width:7px;height:7px;background:#10b981;border-radius:50%;"></span><span>Tersimpan di SiPENDEKAR</span>';
+        indicator.style.color = '#10b981';
+      }
+    } else {
+      if (indicator) {
+        indicator.innerHTML = '<span style="display:inline-block;width:7px;height:7px;background:#ef4444;border-radius:50%;"></span><span>Gagal simpan</span>';
+        indicator.style.color = '#ef4444';
+      }
+      showToast("Auto-save gagal: " + (result.error || "Coba lagi"), "error");
+    }
+  } catch (err) {
+    if (indicator) {
+      indicator.innerHTML = '<span style="display:inline-block;width:7px;height:7px;background:#ef4444;border-radius:50%;"></span><span>Koneksi offline</span>';
+      indicator.style.color = '#ef4444';
+    }
+  }
+}
+
+function updateReviewModalProgress() {
+  if (!currentReviewSession) return;
+
+  const total = (currentReviewSession.questions || []).length || 7;
+  const answeredCount = Object.keys(currentReviewSession.ratings || {}).length;
+  const pct = Math.min(100, Math.round((answeredCount / total) * 100));
+
+  const textEl = document.getElementById('review-modal-progress-text');
+  const barEl = document.getElementById('review-modal-progress-bar');
+  const submitBtn = document.getElementById('btn-submit-review-final');
+
+  if (textEl) textEl.textContent = `${answeredCount} / ${total} Terisi`;
+  if (barEl) barEl.style.width = `${pct}%`;
+
+  if (submitBtn && !currentReviewSession.isSubmitted) {
+    if (answeredCount >= total && total > 0) {
+      submitBtn.disabled = false;
+      submitBtn.style.opacity = '1';
+      submitBtn.style.cursor = 'pointer';
+      submitBtn.style.background = 'linear-gradient(135deg, #7c3aed, #6d28d9)';
+      submitBtn.innerHTML = '<span>🚀 Selesaikan & Kirim Review Final</span>';
+    } else {
+      submitBtn.disabled = true;
+      submitBtn.style.opacity = '0.6';
+      submitBtn.style.cursor = 'not-allowed';
+      submitBtn.innerHTML = `<span>🚀 Isi ${total - answeredCount} Aspek Lagi</span>`;
+    }
+  }
+}
+
+async function submitCurrentReviewFinal() {
+  if (!currentReviewSession || currentReviewSession.isSubmitted) return;
+
+  const questions = currentReviewSession.questions || [];
+  const total = questions.length;
+  const answeredCount = Object.keys(currentReviewSession.ratings || {}).length;
+
+  if (answeredCount < total) {
+    showToast(`Mohon isi seluruh ${total} aspek Core Values BerAKHLAK terlebih dahulu.`, "warning");
+    return;
+  }
+
+  const confirmMsg = `Konfirmasi Penilaian Final:\n\nApakah Anda yakin ingin menyelesaikan dan mengirimkan hasil penilaian evaluasi perilaku kerja untuk:\n\nPegawai: ${currentReviewSession.targetNama}\nNIP: ${currentReviewSession.targetNip}\n\nPERHATIAN: Setelah disubmit ke portal SiPENDEKAR, evaluasi bersifat permanen dan tidak dapat diubah lagi.`;
+
+  if (!confirm(confirmMsg)) return;
+
+  const submitBtn = document.getElementById('btn-submit-review-final');
+  if (submitBtn) {
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<span>⏳ Mengirim ke SiPENDEKAR...</span>';
+  }
+
+  const orderedRatings = [];
+  const orderedIds = [];
+  questions.forEach(q => {
+    orderedIds.push(q.id);
+    orderedRatings.push(currentReviewSession.ratings[q.id]);
+  });
+
+  try {
+    const res = await fetch('/api/review/submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        target_nip: currentReviewSession.targetNip,
+        ratings: orderedRatings,
+        question_ids: orderedIds,
+        csrf_token: currentReviewSession.csrfToken
+      })
+    });
+    const result = await res.json();
+
+    if (result.success) {
+      showToast("🎉 Penilaian perilaku kerja berhasil diselesaikan dan dikirim ke SiPENDEKAR!", "success");
+      closeModal('modal-review-form');
+      fetchReviewData(); // refresh cards and badge counts on the main page
+    } else {
+      showToast("Gagal submit review: " + (result.error || "Silakan coba beberapa saat lagi."), "error");
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<span>🚀 Selesaikan & Kirim Review Final</span>';
+      }
+    }
+  } catch (err) {
+    showToast("Kesalahan koneksi saat submit: " + err.message, "error");
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = '<span>🚀 Selesaikan & Kirim Review Final</span>';
+    }
+  }
+}
+
+window.openReviewModal = openReviewModal;
+window.selectRatingPill = selectRatingPill;
+window.submitCurrentReviewFinal = submitCurrentReviewFinal;

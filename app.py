@@ -775,6 +775,62 @@ def get_user_review():
     except Exception as e:
         return jsonify({"success": False, "error": safe_error_msg(e)}), 500
 
+@app.route("/api/review/form/<target_nip>", methods=["GET"])
+@login_required
+def get_user_review_form(target_nip):
+    """Mengambil rincian formulir 7 Core Values BerAKHLAK untuk pegawai tertentu."""
+    try:
+        current_nip = session["nip"]
+        api, user = session_pool.get_client(current_nip)
+        form_data = api.get_review_form(str(target_nip))
+        return jsonify(form_data)
+    except Exception as e:
+        return jsonify({"success": False, "error": safe_error_msg(e)}), 500
+
+@app.route("/api/review/save-rating", methods=["POST"])
+@login_required
+def save_user_review_rating():
+    """Menyimpan draft penilaian satu aspek perilaku kerja di SiPENDEKAR."""
+    try:
+        current_nip = session["nip"]
+        api, user = session_pool.get_client(current_nip)
+        data = request.get_json(silent=True) or {}
+        target_nip = str(data.get("target_nip", "")).strip()
+        question_id = str(data.get("question_id", "")).strip()
+        rating_val = str(data.get("rating_val", "")).strip()
+        csrf_token = data.get("csrf_token")
+
+        if not target_nip or not question_id or rating_val == "":
+            return jsonify({"success": False, "error": "Parameter tidak lengkap."}), 400
+
+        res = api.save_review_rating(target_nip, question_id, rating_val, reviewer_nip=current_nip, csrf_token=csrf_token)
+        return jsonify(res)
+    except Exception as e:
+        return jsonify({"success": False, "error": safe_error_msg(e)}), 500
+
+@app.route("/api/review/submit", methods=["POST"])
+@login_required
+def submit_user_review():
+    """Mengirim penilaian final 7 Core Values ASN BerAKHLAK ke SiPENDEKAR."""
+    try:
+        current_nip = session["nip"]
+        api, user = session_pool.get_client(current_nip)
+        data = request.get_json(silent=True) or {}
+        target_nip = str(data.get("target_nip", "")).strip()
+        ratings = data.get("ratings", [])
+        question_ids = data.get("question_ids", [])
+        csrf_token = data.get("csrf_token")
+
+        if not target_nip or not ratings or not question_ids:
+            return jsonify({"success": False, "error": "Seluruh 7 aspek penilaian wajib diisi."}), 400
+
+        res = api.submit_final_review(target_nip, ratings, question_ids, reviewer_nip=current_nip, csrf_token=csrf_token)
+        if res.get("success"):
+            database.log_user_activity(current_nip, "REVIEW_SUBMIT", f"Berhasil mengirim evaluasi perilaku untuk pegawai NIP {target_nip}.")
+        return jsonify(res)
+    except Exception as e:
+        return jsonify({"success": False, "error": safe_error_msg(e)}), 500
+
 # ==============================================================================
 # KATALOG KEGIATAN & SKP DINAMIS
 # ==============================================================================

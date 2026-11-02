@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>SiPENDEKAR Calo Assistant - e-Kinerja</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚡</text></svg>">
-  <link rel="stylesheet" href="/static/css/messenger.css?v=20261030_clay_v20">
-  <link rel="stylesheet" href="/static/css/modern_clay.css?v=20261030_clay_v20">
+  <link rel="stylesheet" href="/static/css/messenger.css?v=20261102_clay_v21">
+  <link rel="stylesheet" href="/static/css/modern_clay.css?v=20261102_clay_v21">
 </head>
 <body>
 
@@ -1545,12 +1545,79 @@
   </div>
 </div>
 
+
+<!-- ==============================================================================
+     MODAL: FORM PENILAIAN REVIEW PERILAKU KERJA (7 CORE VALUES ASN BerAKHLAK)
+     ============================================================================== -->
+<div class="modal-backdrop-light" id="modal-review-form">
+  <div class="modal-window-card" style="max-width: 760px; width: 95%; max-height: 90vh; padding: 22px 24px; display: flex; flex-direction: column;">
+    <!-- Modal Header -->
+    <div class="modal-title-row" style="margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1.5px solid #f1f0f8;">
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <div id="review-modal-avatar-box" style="position: relative; flex-shrink: 0;">
+          <img id="review-modal-avatar" src="" alt="Avatar" style="width: 46px; height: 46px; border-radius: 50%; object-fit: cover; border: 2.5px solid #ede9fe; box-shadow: 0 2px 8px rgba(109, 40, 217, 0.15);">
+        </div>
+        <div>
+          <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 3px;">
+            <span class="matrix-role-badge rekan" id="review-modal-role" style="font-size: 10px; padding: 2px 8px;">Rekan Sejawat</span>
+            <span id="review-modal-status-badge" style="font-size: 10.5px; font-weight: 800; padding: 2px 8px; border-radius: 6px; background: #fee2e2; color: #dc2626;">Draft</span>
+          </div>
+          <h3 id="review-modal-name" style="margin: 0; font-size: 15.5px; font-weight: 800; color: #1e1b4b; line-height: 1.2;">Nama Pegawai</h3>
+          <div id="review-modal-meta" style="font-size: 11.5px; color: #64748b; margin-top: 2px;">NIP: - • Jabatan</div>
+        </div>
+      </div>
+      <button type="button" class="modal-close-icon" onclick="closeModal('modal-review-form')" title="Tutup">&times;</button>
+    </div>
+
+    <!-- Progress Tracker Strip -->
+    <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 10px 14px; margin-bottom: 14px; display: flex; align-items: center; justify-content: space-between; gap: 12px;">
+      <div style="flex: 1;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+          <span style="font-size: 11.5px; font-weight: 700; color: #334155;">Progres Penilaian Core Values BerAKHLAK</span>
+          <span id="review-modal-progress-text" style="font-size: 12px; font-weight: 800; color: #6d28d9;">0 / 7 Terisi</span>
+        </div>
+        <div style="width: 100%; height: 7px; background: #ede9fe; border-radius: 10px; overflow: hidden;">
+          <div id="review-modal-progress-bar" style="width: 0%; height: 100%; background: linear-gradient(90deg, #8b5cf6, #6d28d9); transition: width 0.3s ease;"></div>
+        </div>
+      </div>
+      <div id="review-modal-autosave-indicator" style="display: flex; align-items: center; gap: 5px; font-size: 11px; color: #10b981; font-weight: 700; white-space: nowrap;">
+        <span style="display: inline-block; width: 7px; height: 7px; background: #10b981; border-radius: 50%;"></span>
+        <span>Auto-Save SiPENDEKAR</span>
+      </div>
+    </div>
+
+    <!-- Questions Scroll Container -->
+    <div id="review-questions-scroll" style="flex: 1; overflow-y: auto; padding-right: 4px; display: flex; flex-direction: column; gap: 14px;">
+      <div id="review-questions-loading" style="text-align: center; padding: 40px 20px; color: #64748b;">
+        <div class="loader-spinner" style="margin: 0 auto 12px; width: 32px; height: 32px; border: 3px solid #ede9fe; border-top-color: #6d28d9; border-radius: 50%; animation: spin 0.8s linear infinite;"></div>
+        <span style="font-size: 13px; font-weight: 600;">Mengambil 7 Core Values BerAKHLAK dari SiPENDEKAR...</span>
+      </div>
+      <div id="review-questions-list" style="display: flex; flex-direction: column; gap: 14px;"></div>
+    </div>
+
+    <!-- Modal Footer Actions -->
+    <div style="margin-top: 14px; padding-top: 12px; border-top: 1.5px solid #f1f0f8; display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap;">
+      <div style="font-size: 11.5px; color: #64748b;" id="review-footer-note">
+        💡 Setiap pilihan nilai otomatis tersimpan langsung ke server SiPENDEKAR.
+      </div>
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <button type="button" class="btn-secondary" style="padding: 9px 16px; border-radius: 12px; font-size: 12.5px; font-weight: 700; background: #f1f5f9; color: #475569; border: 1.5px solid #cbd5e1; cursor: pointer;" onclick="closeModal('modal-review-form')">
+          Tutup
+        </button>
+        <button type="button" id="btn-submit-review-final" class="tmpl-btn-submit" style="padding: 9px 18px; border-radius: 12px; font-size: 12.5px; font-weight: 800; background: linear-gradient(135deg, #7c3aed, #6d28d9); color: #ffffff; border: none; cursor: pointer; box-shadow: 0 4px 14px rgba(109, 40, 217, 0.3); display: inline-flex; align-items: center; gap: 6px; margin: 0;" onclick="submitCurrentReviewFinal()">
+          <span>🚀 Selesaikan & Kirim Review</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- Toast Notification -->
 <div class="ms-toast" id="ms-toast">
   <span id="ms-toast-text">Notifikasi</span>
 </div>
 
-<script src="/static/js/messenger_app.js?v=20261030_clay_v20"></script>
+<script src="/static/js/messenger_app.js?v=20261102_clay_v21"></script>
 </body>
 </html>
 
