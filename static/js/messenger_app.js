@@ -1305,7 +1305,6 @@ function selectCatalogItemForInchat(item) {
 
     populateDedicatedSkp(item.kode_aktifitas);
     onDedicatedVolumeOrTimeChange('activity');
-    showToast(`Kegiatan dipilih: ${item.nama_aktifitas} (${item.waktu || 300} Menit)`, "success");
     return;
   }
 
@@ -2848,74 +2847,70 @@ async function loadSkpOptions(kodeAktifitas = "", targetOrPref = null, preferred
 
   if (selectElements.length === 0) return;
 
-  // Show loading indicator in empty selects
+  // Ensure options exist without wiping with a loading screen
   selectElements.forEach(sEl => {
-    if (sEl.options.length === 0 || sEl.value === "0") {
-      sEl.innerHTML = `<option value="0">⏳ Memuat SKP SiPENDEKAR...</option>`;
+    if (sEl.options.length === 0) {
+      sEl.innerHTML = `<option value="0">Standar SKP Pegawai (SiPENDEKAR)</option>`;
     }
   });
 
-  try {
-    const code = kodeAktifitas || document.getElementById('simple-val-kode')?.value || 'UTAMA00463';
-    const t0 = performance.now();
-    const res = await fetch(`/api/skp?kode_aktivitas=${encodeURIComponent(code)}`).then(r => r.json());
-    const rt = Math.round(performance.now() - t0);
+  const code = kodeAktifitas || document.getElementById('simple-val-kode')?.value || 'UTAMA00463';
 
-    if (res.latency_ms) {
-      updateSipendekarLatency(res.latency_ms);
-    } else {
-      updateSipendekarLatency(rt);
-    }
+  // Fast cache hit: 0ms instant display without network call
+  window._skpCache = window._skpCache || {};
+  if (window._skpCache[code] && window._skpCache[code].length > 0) {
+    applySkpListToSelects(selectElements, window._skpCache[code], targetPreferred);
+    return;
+  }
+
+  try {
+    const res = await fetch(`/api/skp?kode_aktivitas=${encodeURIComponent(code)}`).then(r => r.json());
+    if (res.latency_ms) updateSipendekarLatency(res.latency_ms);
 
     if (res.success && res.skp && res.skp.length > 0) {
       const opts = res.skp.map((s, idx) => {
         const skpName = s.nama || s.nama_skp || s.sasaran_kerja || s.uraian || `SKP #${s.id}`;
         return { id: s.id, nama: `${idx + 1}. ${skpName} [ID: ${s.id}]` };
       });
+      window._skpCache[code] = opts;
       AppState.skpOptions = opts;
-
-      // Filter valid preferred ID
-      let prefVal = null;
-      if (targetPreferred && !isNaN(Number(targetPreferred)) && Number(targetPreferred) > 0) {
-        prefVal = String(targetPreferred);
-      }
-
-      selectElements.forEach(sEl => {
-        const currentVal = prefVal || sEl.value;
-        sEl.innerHTML = '';
-        opts.forEach(optData => {
-          const opt = document.createElement('option');
-          opt.value = optData.id;
-          opt.textContent = optData.nama;
-          sEl.appendChild(opt);
-        });
-
-        // Set matching preferred value if provided or previously selected
-        if (currentVal && currentVal !== "0" && !isNaN(Number(currentVal))) {
-          let matched = false;
-          for (let i = 0; i < sEl.options.length; i++) {
-            if (String(sEl.options[i].value) === String(currentVal)) {
-              sEl.selectedIndex = i;
-              matched = true;
-              break;
-            }
-          }
-          if (!matched) sEl.selectedIndex = 0;
-        } else {
-          sEl.selectedIndex = 0;
-        }
-      });
-    } else {
-      selectElements.forEach(sEl => {
-        sEl.innerHTML = `<option value="0">Standar Kegiatan Pokok (Otomatis)</option>`;
-      });
+      applySkpListToSelects(selectElements, opts, targetPreferred);
     }
   } catch (e) {
-    console.error("Error loading SKP options:", e);
-    selectElements.forEach(sEl => {
-      sEl.innerHTML = `<option value="0">Standar SKP Pegawai (SiPENDEKAR)</option>`;
-    });
+    // Keep existing SKP options quietly without throwing UI errors
   }
+}
+
+function applySkpListToSelects(selectElements, opts, targetPreferred) {
+  let prefVal = null;
+  if (targetPreferred && !isNaN(Number(targetPreferred)) && Number(targetPreferred) > 0) {
+    prefVal = String(targetPreferred);
+  }
+
+  selectElements.forEach(sEl => {
+    const currentVal = prefVal || sEl.value;
+    sEl.innerHTML = '';
+    opts.forEach(optData => {
+      const opt = document.createElement('option');
+      opt.value = optData.id;
+      opt.textContent = optData.nama;
+      sEl.appendChild(opt);
+    });
+
+    if (currentVal && currentVal !== "0" && !isNaN(Number(currentVal))) {
+      let matched = false;
+      for (let i = 0; i < sEl.options.length; i++) {
+        if (String(sEl.options[i].value) === String(currentVal)) {
+          sEl.selectedIndex = i;
+          matched = true;
+          break;
+        }
+      }
+      if (!matched) sEl.selectedIndex = 0;
+    } else {
+      sEl.selectedIndex = 0;
+    }
+  });
 }
 
 
@@ -3078,7 +3073,7 @@ function closeModal(id) {
   }
 }
 
-function showToast(message, type = 'info') {
+function showToast(message, type = 'info', duration = null) {
   const toast = document.getElementById('ms-toast');
   const text = document.getElementById('ms-toast-text');
   if (!toast || !text) return;
@@ -3086,10 +3081,13 @@ function showToast(message, type = 'info') {
   text.textContent = message;
   toast.className = `ms-toast show active ${type}`;
 
+  const defaultDuration = (type === 'error') ? 2500 : 1200;
+  const timeoutMs = duration !== null ? duration : defaultDuration;
+
   if (window._toastTimeout) clearTimeout(window._toastTimeout);
   window._toastTimeout = setTimeout(() => {
     toast.classList.remove('show', 'active');
-  }, 3500);
+  }, timeoutMs);
 }
 
 function toggleForceMobileView() {
@@ -3630,7 +3628,6 @@ async function fetchSimpleAutocomplete(query) {
   const listEl = document.getElementById('simple-activity-autocomplete-list');
   if (!listEl) return;
 
-  listEl.innerHTML = `<div class="autocomplete-loading"><span>⏳ Mencari di 2.123 katalog kegiatan...</span></div>`;
   listEl.classList.add('active');
   currentHighlightedIndex = -1;
 
@@ -3723,8 +3720,6 @@ function selectSimpleActivity(item) {
   // Recalculate duration & times
   syncSimpleTimeFromVolume();
   syncSimpleDuration();
-
-  showToast(`Kegiatan dipilih: ${nama} (${waktu}m)`, "info");
 }
 
 function onSimpleSearchKeyDown(e) {
@@ -3831,7 +3826,7 @@ async function fetchSchedulerAutocomplete(query) {
   const listEl = document.getElementById('sch-activity-autocomplete-list');
   if (!listEl) return;
 
-  listEl.innerHTML = `<div class="autocomplete-loading"><span>⏳ Mencari di 2.123 katalog kegiatan...</span></div>`;
+  
   listEl.classList.add('active');
   currentHighlightedIndex = -1;
 
@@ -3983,7 +3978,7 @@ async function fetchSchedulerAutocomplete2(query) {
   const listEl = document.getElementById('sch-activity-autocomplete-list2');
   if (!listEl) return;
 
-  listEl.innerHTML = `<div class="autocomplete-loading"><span>⏳ Mencari di 2.123 katalog kegiatan...</span></div>`;
+  
   listEl.classList.add('active');
   currentHighlightedIndex = -1;
 
@@ -4238,25 +4233,40 @@ async function handleSimpleStageSubmit(e) {
     }).then(r => r.json());
 
     if (res.success) {
-      if (idVal) {
-        showToast(`✅ Berhasil! Perubahan aktivitas #${idVal} tersimpan di SiPENDEKAR.`, "success");
-        appendChatBubble('bot', `✏️ **Perubahan Aktivitas Berhasil Disimpan di SiPENDEKAR!**\n\n🆔 **ID:** #${idVal}\n📅 **Tanggal:** ${tanggal}\n⏱️ **Jam:** ${jm}:${mm} - ${js}:${ms}\n📋 **Kegiatan:** ${nama} [${kode}]\n📊 **Volume:** ${volume} ${satuan}\n📝 **Keterangan:** ${keterangan}`);
-      } else {
-        showToast(`✅ Berhasil! Laporan tanggal ${tanggal} tersimpan di SiPENDEKAR.`, "success");
-        appendChatBubble('bot', `✅ **Laporan Berhasil Masuk SiPENDEKAR!**\n\n📅 **Tanggal:** ${tanggal}\n⏱️ **Jam:** ${jm}:${mm} - ${js}:${ms}\n📋 **Kegiatan:** ${nama} [${kode}]\n📊 **Volume:** ${volume} ${satuan}\n📝 **Keterangan:** ${keterangan}`);
+      if (btn) {
+        btn.innerHTML = `<span>✅ Berhasil Terinput!</span>`;
+        btn.style.background = '#10b981';
       }
-      fetchProgress(); // Update calendar and stats
-      loadActivitiesHistory(); // Update history list
-      resetSimpleInputForm(); // Selalu bersihkan form agar siap untuk input berikutnya
+      showToast(idVal ? `✅ Perubahan #${idVal} tersimpan!` : `✅ Berhasil tersimpan di SiPENDEKAR!`, "success", 1200);
+
+      // Reset form immediately so user can input next activity right away
+      resetSimpleInputForm();
+
+      // Silent background refreshes (no loading screens)
+      fetchProgress().catch(() => {});
+      loadActivitiesHistory(true).catch(() => {});
+
+      setTimeout(() => {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = `<span>🚀 1-Klik Kirim Laporan ke SiPENDEKAR</span>`;
+          btn.style.background = '';
+        }
+      }, 400);
     } else {
       showToast(res.error || "Gagal mengirim laporan ke SiPENDEKAR.", "error");
+      if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = `<span>🚀 1-Klik Kirim Laporan ke SiPENDEKAR</span>`;
+        btn.style.background = '';
+      }
     }
   } catch (err) {
     showToast("Terjadi kendala jaringan: " + err.message, "error");
-  } finally {
     if (btn) {
       btn.disabled = false;
       btn.innerHTML = `<span>🚀 1-Klik Kirim Laporan ke SiPENDEKAR</span>`;
+      btn.style.background = '';
     }
   }
 }
@@ -4265,11 +4275,13 @@ async function handleSimpleStageSubmit(e) {
 // 12. FEATURE 3: HISTORI KEGIATAN & INPUT ULANG
 // ==============================================================================
 
-async function loadActivitiesHistory() {
+async function loadActivitiesHistory(silent = false) {
   const container = document.getElementById('history-items-container');
   if (!container) return;
 
-  container.innerHTML = `<div style="text-align: center; padding: 40px; color: #64748b;">⏳ Memuat riwayat kegiatan dari SiPENDEKAR...</div>`;
+  if (!silent && !container.children.length) {
+    container.innerHTML = `<div style="text-align: center; padding: 40px; color: #64748b;">Memuat riwayat kegiatan...</div>`;
+  }
 
   try {
     const res = await fetch('/api/activities/history').then(r => r.json());

@@ -813,7 +813,7 @@ body {
 .ms-toast.show {
   transform: translateX(-50%) translateY(0) !important;
   opacity: 1 !important;
-  pointer-events: auto !important;
+  pointer-events: none !important;
 }
 
 .ms-toast.error {
