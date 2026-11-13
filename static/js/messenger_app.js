@@ -5062,9 +5062,7 @@ async function fetchReviewData(silent = false) {
       }
     }
 
-    if (!silent) {
-      showToast("Data Review & Validasi berhasil disinkronkan.", "success");
-    }
+
   } catch (err) {
     if (!silent) showToast("Koneksi gagal: " + err.message, "error");
   }

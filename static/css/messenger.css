@@ -2455,15 +2455,20 @@ html, body {
 /* Toast */
 .ms-toast {
   position: fixed;
-  bottom: 24px;
+  top: 20px;
+  bottom: auto;
   left: 50%;
-  transform: translateX(-50%) translateY(100px);
+  transform: translateX(-50%) translateY(-100px);
   background: rgba(15, 23, 42, 0.92);
   color: #ffffff;
   padding: 10px 20px;
   border-radius: var(--radius-pill);
   font-size: 13.5px;
   font-weight: 600;
+  height: auto;
+  max-height: 48px;
+  width: auto;
+  max-width: 90vw;
   z-index: 99999;
   box-shadow: var(--shadow-lg);
   transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
