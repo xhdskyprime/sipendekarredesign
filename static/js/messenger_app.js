@@ -1347,7 +1347,7 @@ function selectCatalogItemForInchat(item) {
   populateInchatSkp(cid, item.kode_aktifitas);
   updateCreateTmplDuration(cid);
   updateInchatDuration(cid);
-  showToast(`Kegiatan dipilih: ${item.nama_aktifitas} (${item.waktu || 30} Menit)`, "success");
+  
 }
 
 function updateCreateTmplDuration(cid) {
@@ -2552,7 +2552,6 @@ function fillDayFast(dateStr) {
   switchViewTab('simple-input');
   const tgl = document.getElementById('simple-input-tanggal');
   if (tgl) tgl.value = dateStr;
-  showToast(`Tanggal pelaksanaan disetel ke: ${dateStr}`, "info");
 }
 
 function editActivityItemById(id) {
@@ -2626,12 +2625,10 @@ function editActivityItem(item, dateStr) {
   }
 
   syncSimpleDuration();
-  showToast(`Mode edit aktif: Aktivitas #${item.id} siap diperbarui.`, "info");
 }
 
 function cancelSimpleEditMode() {
   resetSimpleInputForm();
-  showToast("Mode edit dibatalkan. Formulir kembali ke mode input baru.", "info");
 }
 
 
@@ -3787,7 +3784,7 @@ function applySimpleActivityPreset(kode, nama, waktu, satuan, keterangan) {
 
   loadSkpOptions(kode, 'simple-input-skp');
   syncSimpleTimeFromVolume();
-  showToast(`Kegiatan disetel: ${nama}`, "info");
+  
 }
 
 // ------------------------------------------------------------------------------
@@ -3912,7 +3909,7 @@ function selectSchedulerActivity(item) {
   syncSchedulerTimeFromVolume();
   syncSchedulerDuration();
 
-  showToast(`Kegiatan terjadwal dipilih: ${nama}`, "info");
+  
 }
 
 function onSchedulerSearchKeyDown(e) {
@@ -4061,7 +4058,7 @@ function selectSchedulerActivity2(item) {
   syncSchedulerTimeFromVolume2();
   syncSchedulerDuration();
 
-  showToast(`Template 2 dipilih: ${nama}`, "info");
+  
 }
 
 function onSchedulerSearchKeyDown2(e) {
@@ -4388,7 +4385,6 @@ function copyActivityToSimpleForm(idx) {
   }
 
   syncSimpleDuration();
-  showToast("Kegiatan disalin ke formulir input. Silakan periksa & kirim!", "success");
 }
 
 async function directCloneYesterdayActivities() {
